@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.model.ModelDao">   
+    <!-- 全查询-->
+    <select id="queryAll"  resultType="beans.model.ModelBean">
+      select module_id,module_name,is_vaild,is_auditing,is_log from module
+    </select>
+       <update id="updateModel" parameterType="beans.model.ModelBean">
+           update module 
+           <set>
+           <if test="is_auditing!=null">
+               is_auditing = #{is_auditing},
+           </if>
+           <if test="is_log!=null">
+               is_log = #{is_log},
+           </if>
+           </set>
+           where module_id = #{module_id}     
+       </update>
+        
+        <!--查询所有模块id  -->
+        <select id="showLogModule" resultType="Integer">
+          select module_id from module where is_log=0
+        </select>
+        
+         <select id="queryModuleAudit" resultType="int" parameterType="int" >
+          select is_auditing from module where module_id=#{moduleid}
+        </select>
+</mapper>    

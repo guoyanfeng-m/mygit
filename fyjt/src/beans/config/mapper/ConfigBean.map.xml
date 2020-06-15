@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.config.ConfigDao">  
+    <insert id="insertConfig" parameterType="beans.config.ConfigBean">  
+        insert into config(config_id,config_key,config_value) values(#{config_id},#{config_key},#{config_value})   
+    </insert>  
+    <!-- 根据key 查询value -->
+    <select id="queryConfig" parameterType="java.lang.String" resultType="java.lang.String">
+      select config_value from config where config_key=#{config_key}
+    </select>
+    <!-- 查询web服务器设置 -->
+    <select id="queryConfigWEB" resultType="beans.config.ConfigBean">
+    	select config_value from config where config_key='webServerUrl' or config_key='httpip' or config_key='httpport' or config_key='outhttpip' or config_key='logDelete' or config_key='statisticsDelete' or config_key='lastTerminalAppVer' or config_key='lastAndroidTerminalAppVer'
+    </select>
+    <!-- 查询ftp服务器设置 -->
+    <select id="queryConfigFTP" resultType="beans.config.ConfigBean">
+    	select config_value from config where config_key='outftpip' or config_key='ftpMappingUrl' or config_key='ftpip' or config_key='uploadport' or config_key='downloadport' or config_key='monitorSenderMail' or config_key='monitorRecieverMail' or config_key='license_loginname' or config_key='license_password' or config_key='license_url'
+    </select> 
+     <!-- 查询联系方式设置 -->
+    <select id="queryConfigContact" resultType="beans.config.ConfigBean">
+    	select config_value from config where config_key='contactPhone' or config_key='contactFax' or config_key='contactEmail'
+    </select> 
+    <!-- 查询elementPower-->
+    <select id="queryElementPower" resultType="java.lang.String">
+      select config_value from config where config_key='elementPower' 
+    </select>  
+    <update id="updateElementPower" parameterType="java.lang.Integer">
+        update config set config_value=#{elementPower} where config_key='elementPower'
+     </update>       
+    <!-- 修改服务器配置 -->
+     <update id="updateConfig" parameterType="beans.config.ConfigBean">
+        update config set config_value=#{config_value} where config_key=#{config_key}
+     </update><!--
+    <select id="queryConfig" resultType="beans.config.ConfigBean"  
+        parameterType="beans.config.ConfigBean">  
+        select * from config where 1=1 
+        <if test="config_id != null and config_id != ''"> and config_id=#{config_id}  </if> 
+        <if test="config_key != null and config_key != ''"> and config_key=#{config_key}  </if> 
+        <if test="config_value != null and config_value != ''"> and config_value=#{config_value}  </if> 
+    </select>  
+    --><select id="queryFtpUrl" resultType="java.lang.String"  
+        parameterType="beans.config.ConfigBean">  
+        select config_value from config where 
+        config_key = #{config_key}
+        
+    </select>     
+    <select id="selectConfig" resultType="beans.config.ConfigBean">
+     select config_key,config_value from config
+    </select>
+</mapper>

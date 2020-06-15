@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.terminal.TaskDownLoadDao">  
+    
+    <select id="queryTaskDownLoadByTerminalId" resultType="beans.terminal.TaskDownLoadBean">  
+        select 
+        b.terminal_name,
+        a.taskName,
+        a.TaskPercent,
+        a.UpdateTime
+        from taskDownLoad a
+        left join terminal b on a.terminal_id = b.terminal_id
+        where 1=1 and a.terminal_id in 
+        <foreach collection="array" item="terminal_id" index="index"
+            open="(" close=")" separator=",">
+            #{terminal_id}
+        </foreach>
+        order by a.UpdateTime;
+    </select>  
+    
+    <select id="queryProgram_terminalByTerminalId" resultType="beans.terminal.Program_terminalBean">  
+        select 
+        b.terminal_id,
+        b.terminal_name,
+        b.mac,
+       	c.program_id,
+       	c.name
+        from program_terminal a 
+        left join terminal b on a.terminal_id = b.terminal_id
+        left join program c on a.program_id = c.program_id
+        where 1=1 and a.terminal_id in 
+        <foreach collection="array" item="terminal_id" index="index"
+            open="(" close=")" separator=",">
+            #{terminal_id}
+        </foreach>
+        order by b.terminal_name;
+    </select> 
+</mapper>    

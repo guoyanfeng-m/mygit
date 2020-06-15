@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.role.RoleDao">  
+	<insert id="insertRole" parameterType="beans.role.RoleBean">  
+        insert into role
+        	(
+	        	role_id,role_name,description,deleted,create_time,update_time,creator_id,schedulelevel
+        	) 
+        values
+        	(
+	        	#{role_id},#{role_name},#{description},#{deleted},#{create_time},#{update_time},#{creator_id},#{schedulelevel}
+        	)  
+       	 <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="role_id" >
+       	 SELECT LAST_INSERT_ID() AS role_id
+     	 </selectKey>
+    </insert>
+    
+    <insert id="insertRolePower" parameterType="beans.role.RoleParametersBean">  
+       	insert into role_modulepower(role_id,power_id)	values(#{role_id},#{power_id}) ; 
+    </insert>
+    
+    <insert id="insertRoleTerminal" parameterType="beans.role.ParametersRoleTerminalBean">  
+       	insert into role_terminal(role_id,terminal_id)	values(#{role_id},#{terminal_id}) ; 
+    </insert>
+    
+    <insert id="insertRoleTerminalGroup" parameterType="beans.role.ParametersRoleTerminalGroupBean">  
+       	insert into role_terminalgroup(role_id,terminalgroup_id)	values(#{role_id},#{terminalgroup_id}) ; 
+    </insert>
+    
+    <select id="queryRole" resultType="beans.role.RoleViewBean"  parameterType="map"> 
+      	SELECT 
+	      	a.role_id,
+	      	a.role_name,
+	      	a.description,
+	      	b.realname,
+	      	a.create_time,
+	      	a.update_time,
+	      	a.schedulelevel 
+      	FROM role a,`user` b
+      	<where>
+	      	 a.creator_id=b.user_id 
+	      	 <if test="creatorid != null and creatorid != ''">
+	      	 	 and b.user_id =#{creatorid}
+	      	 </if>
+	         <if test="userids.size()>0">
+	          and b.user_id in 
+	      	 <foreach collection="userids" item="item" index="index" open="(" close=")" separator=",">
+	            #{item}
+	        </foreach>
+	        </if>
+	        <if test="roleBean.role_name != null and roleBean.role_name != ''"> 
+	         and role_name like CONCAT('%','${roleBean.role_name}','%')
+	        </if> 
+	         AND a.deleted=0 
+      	</where> 
+        order by a.update_time desc  LIMIT #{offset},#{limit}
+    </select>
+    
+    <select id="queryRoleID" resultType="java.lang.Integer"  parameterType="Map"> 
+		SELECT role_id FROM role WHERE deleted=0 and role_name=#{rolename} AND  creator_id=#{creatid}
+    </select>
+    
+    <select id="queryPowerByRoleID" resultType="java.lang.Integer"  parameterType="java.lang.Integer"> 
+    	SELECT power_id FROM role_modulepower WHERE role_id=#{roleid} and power_id&gt;1
+    </select>
+    
+    <select id="queryTerminalByRoleID" resultType="java.lang.Integer"  parameterType="java.lang.Integer"> 
+    	SELECT terminal_id FROM role_terminal WHERE role_id=#{roleid}
+    </select>
+    
+    <select id="queryTerminalGroupByRoleID" resultType="java.lang.Integer"  parameterType="java.lang.Integer"> 
+   	 SELECT terminalgroup_id FROM role_terminalgroup WHERE role_id=#{roleid}
+    </select>
+    
+    
+     <select id="queryRoleCount" resultType="java.lang.Integer"   parameterType="beans.role.RoleBean"> 
+        SELECT  count(1) as count 
+        FROM role a,`user` b
+        WHERE 
+        a.creator_id=b.user_id 
+        AND a.deleted=0  
+        and a.creator_id=b.user_id
+        <if test="creatorid !=null and creatorid != ''">
+          and b.user_id =#{creatorid}
+        </if>
+        <if test="userids.size()>0">
+           and b.user_id in 
+	        <foreach collection="userids" item="item" index="index" open="(" close=")" separator=",">
+	            #{item}
+	        </foreach>
+        </if>
+        <if test="roleBean.role_name != null and roleBean.role_name != ''"> 
+         and  a.role_name like CONCAT('%','${roleBean.role_name}','%')
+        </if> 
+        order by a.update_time desc
+    </select>
+    
+    <select id="queryShowRolePower" resultType="beans.role.ResultShowRolePowerBean"   parameterType="int"> 
+        SELECT    DISTINCT c.module_id,c.module_name,c.parentID  FROM modulepower a,role_modulepower b , module c WHERE a.t_id=b.power_id AND c.module_id= a.ModuleID  AND  b.role_id=#{roleid}  
+    </select>
+    
+    <select id="queryShowRolePowernext" resultType="beans.role.ResultShowRolePowernextBean"   parameterType="int"> 
+       SELECT a.t_id,a.PowerName,a.ModuleID FROM modulepower a,role_modulepower b , module c WHERE a.t_id=b.power_id AND c.module_id= a.ModuleID   AND b.role_id=#{roleid} AND a.t_id&gt;1
+    </select>
+    <select id="checkHave" parameterType="beans.role.ParametersRoleTerminalGroupBean"   resultType="int"> 
+       SELECT count(1) FROM role_terminalgroup WHERE role_id=#{role_id} and terminalgroup_id=#{terminalgroup_id}
+    </select>
+    
+     <!-- 根据角色id查找user_role表中是否存在该角色 -->
+     <select id="queryUserRoleByRoid" resultType="Integer"  parameterType="int"> 
+		SELECT role_id  FROM user_role WHERE role_id=#{roleid}      
+    </select>
+    
+    
+    
+  	<delete id="deleteTerminalByRoleId" parameterType="int" >  
+        DELETE FROM role_terminal WHERE role_id=#{roleid}
+    </delete>
+    
+    <delete id="deleteTerminalByTerminalId" parameterType="beans.role.RoleParametersBean" >  
+        DELETE FROM role_terminal 
+        <where>
+	        <if test="power_id != null and power_id != 0"> 
+	            terminal_id=#{power_id}
+	         </if> 
+	        <if test="role_id !=null and role_id != 0"> 
+	            and role_id=#{role_id}  
+	        </if> 
+        </where>  
+    </delete>
+    
+    <delete id="deleteTerminalgroupByRoleId" parameterType="int" flushCache="true">  
+        DELETE FROM role_terminalgroup WHERE role_id=#{roleid}
+    </delete>
+    
+    <delete id="deleteTerminalgroupByTerminalGroupId" parameterType="int" flushCache="true">  
+        DELETE FROM role_terminalgroup WHERE terminalgroup_id=#{terminalgroup_id}
+    </delete>
+    
+    <delete id="deletePowerByRoleId" parameterType="int" flushCache="true">  
+		DELETE FROM role_modulepower WHERE role_id=#{roleid}
+    </delete>
+       
+    <update id="updateRoleByRoleId" parameterType="beans.role.RoleBean" flushCache="true">
+		update role
+		<set>
+			<if test="role_name != null">
+			role_name = #{role_name},
+			</if>
+			<if test="description != null">
+			description = #{description},
+			</if>
+			<if test="deleted != null">
+			deleted = #{deleted},
+			</if>
+			schedulelevel = #{schedulelevel},
+			update_time = null
+		</set>
+		where role_id = #{role_id}
+   </update>
+   
+   <select id="queryScheduleLevelByRoleID" resultType="java.lang.Integer"  parameterType="java.lang.Integer" >
+   		SELECT schedulelevel FROM role WHERE role_id=#{userid}
+   </select>
+   <!-- 终端管理_终端添加_角色终端表入库 -->
+   <insert id="insertRoleTerminals">
+         insert into role_terminal
+         (
+		         role_id,
+		         terminal_id
+         )	
+         values
+         <foreach collection="tersRoleTerminalList" item="item" index="index" separator=",">
+             (
+		         #{item.role_id},
+		         #{item.terminal_id}
+	         ) 
+         </foreach>
+   </insert>
+   <!-- 删除角色终端组表 -->
+   <delete id="deleteRoleTerminalGroups">
+        DELETE FROM 
+                     `role_terminalgroup` 
+        <where>
+		        role_id  IN  
+		        <foreach collection="roleTerminalGroupList" item="item" index="index" open="(" close=")" separator=",">
+		            #{item.role_id}
+		        </foreach>  
+		        AND terminalgroup_id IN
+		        <foreach collection="roleTerminalGroupList" item="item" index="index" open="(" close=")" separator=",">
+		            #{item.terminalgroup_id}
+		        </foreach>  
+        </where>
+   </delete>
+   <!-- 插入角色终端组表  -->
+   <insert id="insertRoleTerminalGroups">
+      insert into 
+      role_terminalgroup
+	      (
+		      role_id,
+		      terminalgroup_id
+	      )	
+      values
+	      <foreach collection="roleTerminalGroupList"  item="item"  index="index" separator=",">
+		      (
+			      #{item.role_id},
+			      #{item.terminalgroup_id}
+		      ) 
+	      </foreach>
+   </insert>
+   <!-- 删除角色终端表 -->
+   <delete id="deleteTerminalByTerminalIds" parameterType="beans.terminal.TerminalBean" >  
+        DELETE FROM role_terminal 
+        <where>
+	            terminal_id = #{terminal_id}
+        </where>  
+    </delete>
+    
+    <!-- 终端管理_终端添加_所有有次终端组权限的角色终端表入库 -->
+   <insert id="insertRoleAllTerminals">
+         insert into role_terminal
+         (
+		         role_id,
+		         terminal_id
+         )	
+         values
+         <foreach collection="tersRoleTerminalList" item="item" index="index" separator=",">
+             (
+		         #{item.role_id},
+		         #{item.terminal_id}
+	         ) 
+         </foreach>
+   </insert>
+</mapper>    

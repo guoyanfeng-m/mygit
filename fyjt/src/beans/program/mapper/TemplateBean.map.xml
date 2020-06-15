@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.program.TemplateDao">
+	<insert id="insertTemplate" parameterType="beans.program.TemplateBean">
+		insert into template
+		values(#{template_id},#{name},#{audit_status},#{url},#{description},#{creator_id},#{deleted},#{resolution},#{create_time},#{is_touch})
+		 <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="template_id" >
+        SELECT LAST_INSERT_ID() AS ID   
+      </selectKey>
+	</insert>
+	<update id="deleteTemplateById" parameterType="Integer"
+		flushCache="true">
+		update template set deleted=1 where template_id =#{template_id}
+	</update>
+	<select id="queryTemplate" resultType="beans.program.view.TemplateView"
+       parameterType="map" >
+		 select 
+		 t.template_id as template_id,
+		 t.name as name,
+         t.url as url,
+         t.creator_id as creator_id,
+         t.audit_status as audit_status,
+         t.description as description,
+         t.resolution as resolution,
+         t.deleted as deleted,
+         t.create_time as create_time,
+         t.is_touch as is_touch,
+         u.realname as creator_name
+         from template t 
+         left join user u on t.creator_id = u.user_id 
+         where t.deleted=0
+		  <if test="template_id != null and template_id != ''"> and template_id=#{template_id}  </if> 
+		  <if test="name != null and name != ''"> and name like CONCAT('%','${name}','%' )   </if> 
+		  order by create_time desc  LIMIT #{offset},#{limit};
+	</select>
+	 <select id="queryTemplateCount" resultType="java.lang.Integer"  
+        parameterType="beans.program.TemplateBean">  
+        select 
+        count(1) as count
+        from template 
+        where deleted=0
+        <if test="name != null and name != ''">  and name like CONCAT('%','${name}','%' )  </if> 
+    </select>
+    <select id="queryTemplateByName" resultType="beans.program.TemplateBean" parameterType="string">
+		 select 
+		 *
+         from template
+         where deleted=0  and name=#{name}  
+	</select>  
+</mapper>    

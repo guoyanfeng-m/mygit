@@ -1,0 +1,149 @@
+* {
+	margin: 0;
+	padding: 0;
+	font-family: "微软雅黑";
+}
+.header {
+	width: 100%;
+	height: 145px;
+}
+.header img{
+	width: 100%;
+}
+.footer {
+	width:100%;
+	background: #1b4f84;
+}
+.footer .footer-content {
+	width: 1200px;
+	margin: 0 auto;
+	height: 210px;
+}
+.footer .footer-content:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.footer .footer-content .footer-left {
+	width: 890px;
+	float: left;
+	padding-top: 60px;
+}
+.footer .footer-content .footer-left .about:after,
+.footer .footer-content .footer-left .contact-us:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.footer .footer-content .footer-left .about {
+	margin-bottom: 30px;
+}
+.footer .footer-content .footer-left .about > a {
+	text-decoration: none;
+	color: #afc0d6;
+	font-size: 14px;
+}
+.footer .footer-content .footer-left .about > a:hover {
+	color: #aecfef;
+}
+.footer .footer-content .footer-left .about > span.line {
+	color: #6e85a1;
+	font-size: 14px;
+	margin: 0px 3px;
+}
+.footer .footer-content .footer-left .label {
+	float: left;
+	width: 150px;
+	text-align: left;
+	color: #eef2f5;
+	font-size: 18px;
+}
+.footer .footer-content .footer-left .contact-us > span {
+	float: left;
+	height: 22px;
+	line-height: 22px;
+}
+.footer .footer-content .footer-left .contact-us span.phone-icon {
+	color: #afc0d6;
+	font-size: 13px;
+	background: url(../img/phone-icon.png) no-repeat;
+	padding-left: 28px;
+	margin-right: 30px;
+}
+.footer .footer-content .footer-left .contact-us span.fax-icon {
+	color: #afc0d6;
+	font-size: 13px;
+	background: url(../img/fax-icon.png) no-repeat;
+	padding-left: 28px;
+	margin-right: 30px;
+}
+.footer .footer-content .footer-left .contact-us span.email-icon {
+	color: #afc0d6;
+	font-size: 13px;
+	background: url(../img/email-icon.png) no-repeat;
+	padding-left: 28px;
+}
+.footer .footer-content .footer-right {
+	width: 260px;
+	height: 121px;
+	float: right;
+	padding-top: 40px;
+}
+.footer .footer-content .footer-right .code {
+	width: 100px;
+	height: 120px;
+	border-left: 1px solid #333333;
+	border-bottom: 1px solid #333333;
+	background: #dddddd;
+	margin-left: 27px;
+	float: left;
+}
+.footer .footer-content .footer-right .code > span {
+	display: block;
+	width: 100px;
+	height: 100px;
+}
+.footer .footer-content .footer-right .code .code-text {
+	height: 20px;
+	line-height: 20px;
+	color: #444444;
+	font-size: 12px;
+	text-align: center;
+}
+.copyright {
+	width: 100%;
+	height: 38px;
+	line-height: 38px;
+	background: #114070;
+	text-align: center;
+	color: #a5b6cb;
+	font-size: 12px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

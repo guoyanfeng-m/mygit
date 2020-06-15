@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.carousel.CarouselDao">  
+    
+    <insert id="insertCarousel" parameterType="beans.carousel.CarouselBean">
+    	insert into carousel(creator_id,imgurl,isort,create_time,update_time)
+		values(#{creator_id},#{imgurl},#{isort},#{create_time},#{update_time})
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="carousel_id">
+			SELECT LAST_INSERT_ID() AS carousel_id
+		</selectKey>
+    </insert>
+    
+    <delete id="deleteCarouselById" flushCache="true">
+		delete from carousel
+		where carousel_id = #{carousel_id}  
+    </delete>
+    
+    <update id="updateCarouselById" parameterType="beans.carousel.CarouselBean" flushCache="true">
+		update carousel
+		<set>
+			<if test="imgurl != null">
+			imgurl = #{imgurl},
+			</if>
+			<if test="isort != null">
+			isort = #{isort},
+			</if>
+			<if test="update_time != null">
+			update_time = #{update_time},
+			</if>
+		</set>
+		where carousel_id = #{carousel_id}
+   </update>
+   
+   <select id="queryCarousel" resultType="beans.carousel.CarouselBean"  parameterType="map"> 
+      	SELECT 
+	      	a.carousel_id,
+	      	a.imgurl,
+	      	a.isort,
+	      	a.create_time,
+	      	a.update_time,
+	      	a.creator_id,
+	      	u.realname 
+      	FROM carousel a
+      	left join user u on a.creator_id=u.user_id
+        order by a.isort ASC  LIMIT #{offset},#{limit}
+    </select>
+    
+    <!-- 全查询 -->
+   <select id="queryCarouselAll" resultType="beans.carousel.CarouselBean"  >
+      SELECT 
+	      	a.carousel_id,
+	      	a.imgurl,
+	      	a.isort,
+	      	a.create_time,
+	      	a.update_time
+      from carousel a 
+   </select>
+   
+</mapper>

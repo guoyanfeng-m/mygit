@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.errorLog.ErrorLogDao">  
+    <insert id="insertErrorLog" parameterType="beans.errorLog.ErrorLogBean">  
+        insert into errorlog(module_name,function_name,class_name,exception_type,exception_reason,happen_time) 
+        	values(#{module_name},#{function_name},#{class_name},#{exception_type},#{exception_reason},#{happen_time})   
+    </insert>  
+    <select id="queryTotal" resultType="java.lang.Integer" parameterType="map">
+         SELECT COUNT(*) FROM errorlog e 
+	     <where>
+	     	<if test="errormodule != null and errormodule != '所有模块'">
+	         and e.module_name = #{errormodule}
+	       </if>
+	       <if test="errordetail != null and errordetail != ''">
+	         and e.exception_reason like concat(concat('%',#{errordetail}),'%')
+	       </if>
+	       <if test="starttime != null and starttime != '' ">
+	         and happen_time &gt;= #{starttime}
+	       </if>
+	       <if test="endtime != null and endtime != '' ">
+	         and happen_time &lt;= #{endtime}
+	       </if>
+	      </where>
+	   </select>
+	   <select id="queryErrorlog" resultType="beans.errorLog.ErrorLogBean" parameterType="map">
+	 		select * FROM errorlog e 
+			<where>
+			    <if test="errormodule != null and errormodule != '所有模块'">
+		           and e.module_name = #{errormodule}
+		        </if>
+		        <if test="errordetail != null and errordetail != ''">
+	        		and e.exception_reason like concat(concat('%',#{errordetail}),'%')
+	       	    </if>
+		        <if test="starttime != null and starttime != '' ">
+		        	and happen_time &gt;= #{starttime}
+		        </if>
+		        <if test="endtime != null and endtime != '' ">
+		        	and happen_time &lt;= #{endtime}
+		        </if>
+	            and 1=1 order by update_time desc LIMIT #{pageInfo.start},#{pageInfo.rows}
+	        </where>
+ 	</select>
+</mapper>

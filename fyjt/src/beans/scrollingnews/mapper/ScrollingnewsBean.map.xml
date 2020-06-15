@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.scrollingnews.ScrollingnewsDao">  
+   <!-- 添加操作 -->
+   <insert id="insertScroll" parameterType="beans.scrollingnews.ScrollingnewsBean">
+      insert into scrollingnews (name,font,font_size,font_color,text,scroll_direction,scroll_speed,start_time,end_time,xmlcontent,audit_status,creator_id,deleted,IsSend)
+      values(#{sname},#{font},#{font_size},#{font_color},#{text},#{scroll_direction},#{scroll_speed},#{start_time},#{end_time},#{xmlcontent},#{audit_status},#{creator_id},#{deleted},#{IsSend})
+   </insert>
+   
+   <!-- 全查询 -->
+   <select id="queryAll" resultType="beans.scrollingnews.ScrollingnewsBean" parameterType="map">
+      select 
+		      a.new_id,
+		      a.name sname,
+		      a.font,
+		      a.font_size,
+		      a.font_color,
+		      a.text,
+		      a.scroll_direction,
+		      a.scroll_speed,
+		      a.start_time,
+		      a.end_time,
+		      a.audit_status,
+		      a.update_time,
+		      a.creator_id,
+		      a.IsSend
+      from scrollingnews a 
+      left join user u on a.creator_id=u.user_id
+      <where>
+            <if test="scroll.sname != null and scroll.sname != '' ">
+               a.name like concat(concat('%',#{scroll.sname,jdbcType=VARCHAR}),'%')
+            </if> 
+ 		 	<if test="creatorid != null and creatorid !=''">
+ 		 	 and u.user_id = #{creatorid}
+ 		 	 </if>
+ 		 	 <if test="userids.size()>0">
+ 		 	 and u.user_id in 
+ 		 	    <foreach collection="userids" item="idList" index="index" open="(" close=")" separator=",">
+ 		 	    #{idList}
+ 		 	    </foreach>
+ 		 	 </if>             
+         and a.deleted=0  
+       </where>
+       order by a.update_time desc
+   </select>
+      <!-- 分页查询 -->
+   <select id="queryPage" resultType="beans.scrollingnews.ScrollingnewsBean" parameterType="map">
+      select 
+      a.new_id,
+      a.name sname,
+      a.font,
+      a.font_size,
+      a.font_color,
+      a.text,
+      a.scroll_direction,
+      a.scroll_speed,
+      a.start_time,
+      a.end_time,
+      a.audit_status,
+      a.update_time,
+      a.creator_id,
+      u.realname ,
+      a.IsSend
+      from scrollingnews a left join user u on u.user_id = a.creator_id
+      <where>
+      1=1
+            <if test="sBean.sname != null and sBean.sname != '' ">
+              and a.name like concat(concat('%',#{sBean.sname}),'%')
+            </if>
+             <if test="creatorid !=null and creatorid !=''"> 
+             and u.user_id = #{creatorid}
+             </if>  
+             <if test="userids.size()>0">
+              and u.user_id in 
+                <foreach collection="userids" item="idList" index="index" open="(" close=")" separator=",">
+                 #{idList}
+                </foreach>
+             </if>
+         and a.deleted=0  
+       </where>
+             order by a.update_time desc LIMIT #{offset},#{limit}
+   </select>
+   
+   <!-- 关联查询 -->
+   <select id="queryView" resultType="beans.scrollingnews.ScrollTerminalView">
+          SELECT s.name as sname,s.new_id as new_id,t.terminal_id as terminal_id,tt.terminal_name as terminal_name,tt.ip as ip,tt.mac as mac FROM (scrollingnews s INNER JOIN scrollingnews_terminal t ON s.new_id=t.scrollingNews_id) inner join terminal tt on t.terminal_id=tt.terminal_id
+   </select>
+   
+   <!-- 条件查询 -->
+   <select id="queryScroll" parameterType="beans.scrollingnews.ScrollingnewsBean" resultType="beans.scrollingnews.ScrollingnewsBean">
+      select 
+      a.new_id,
+      a.name sname,
+      a.font,
+      a.font_size,
+      a.font_color,
+      a.text,
+      a.scroll_direction,
+      a.scroll_speed,
+      a.start_time,
+      a.end_time,
+      a.audit_status,
+      a.update_time,
+      a.creator_id,
+      a.IsSend
+      from scrollingnews a
+       <where>
+            <if test="new_id !=null and new_id != '' ">
+              and new_id=#{new_id}
+            </if>
+            <if test="sname != null and sname != '' ">
+              and name=#{sname}
+            </if>
+         and deleted=0 
+       </where>
+   </select>
+   
+   <!-- 删除操作 -->
+   <delete id="delScroll" parameterType="java.lang.Integer"  flushCache="true">
+       delete from scrollingnews where new_id in
+       <foreach collection="array" index="index" item="new_id" open="(" separator="," close=")">
+          #{new_id}
+       </foreach>
+   </delete>
+   
+   <!-- 修改操作 -->
+   <update id="updateScroll" parameterType="beans.scrollingnews.ScrollingnewsBean">
+      update scrollingnews
+       <set>
+          <if test="sname != null and sname != '' ">
+           scrollingnews.name=#{sname,jdbcType=VARCHAR},
+          </if>
+          <if test="font != null and font != '' ">
+            scrollingnews.font=#{font,jdbcType=VARCHAR},
+          </if>
+          <if test="font_size != null and font_size != '' ">
+            scrollingnews.font_size=#{font_size,jdbcType=VARCHAR},
+          </if>
+          <if test="font_color != null and font_color != '' ">
+            scrollingnews.font_color=#{font_color,jdbcType=VARCHAR},
+          </if>
+          <if test="text != null and text != '' ">
+            scrollingnews.text=#{text,jdbcType=VARCHAR},
+          </if>
+          <if test="scroll_direction != null and scroll_direction != '' ">
+            scrollingnews.scroll_direction=#{scroll_direction,jdbcType=VARCHAR},
+          </if>
+          <if test="scroll_speed != null and scroll_speed != '' ">
+           scrollingnews.scroll_speed=#{scroll_speed},
+          </if>
+          <if test="start_time != null and start_time != '' ">
+            scrollingnews.start_time=#{start_time},
+          </if>
+          <if test="end_time != null and end_time != '' ">
+            scrollingnews.end_time=#{end_time,jdbcType=VARCHAR},
+          </if>
+          <if test="audit_status != null and audit_status != '' ">
+            scrollingnews.audit_status=#{audit_status},
+          </if>
+          <if test="creator_id != null and creator_id != '' ">
+            scrollingnews.creator_id=#{creator_id},
+          </if>
+          <if test="xmlcontent != null">
+            scrollingnews.xmlcontent=#{xmlcontent,jdbcType=VARCHAR},
+          </if>
+          <if test="deleted != null and deleted != '' ">
+            scrollingnews.deleted=#{deleted},
+          </if>
+          <if test="IsSend != null and IsSend != '' ">
+            scrollingnews.IsSend=#{IsSend} 
+          </if>
+       </set>
+       where scrollingnews.new_id=#{new_id}
+   </update>
+</mapper>    

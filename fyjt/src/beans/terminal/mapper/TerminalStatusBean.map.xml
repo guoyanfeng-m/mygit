@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.terminal.TerminalStatusDao">  
+    <insert id="insertTerminalStatus" parameterType="beans.terminal.TerminalStatusBean">  
+        insert into terminal_status(terminal_id,terminalJudge,sysVersion,softVersion,cpuUsage,
+        memUsage,diskUsage,terminalStatus,runTimeLength,updateTime) values(#{terminal_id},
+        #{terminalJudge},#{sysVersion},#{softVersion},#{cpuUsage},#{memUsage},#{diskUsage},
+        #{terminalStatus},#{runTimeLength},#{updateTime})   
+    </insert>  
+    <select id="queryTerminalStatus" resultType="beans.terminal.TerminalStatusViewBean">  
+       select 
+		a.terminal_id,
+		b.terminal_name,
+		b.mac,
+		a.terminalJudge,
+		a.sysVersion,
+		a.softVersion,
+		a.cpuUsage,
+		a.memUsage,
+		a.diskUsage,
+		a.terminalStatus,
+		a.runTimeLength,
+		a.updateTime
+		from terminal_status a 
+		left join terminal b on a.terminal_id = b.terminal_id 
+		 where a.terminal_id in 
+		 <foreach collection="list" item="terminal_id" index="index"
+            open="(" close=")" separator=",">
+            #{terminal_id}
+        </foreach>
+        and b.audit_status = 1	
+    </select>  
+       
+    <select id="queryTerminalStatusByUserId" resultType="beans.terminal.TerminalStatusViewBean"  parameterType="map">  
+        select distinct 
+		a.terminal_id,
+		b.terminal_name,
+		b.mac,
+		a.terminalJudge,
+		a.sysVersion,
+		a.softVersion,
+		a.cpuUsage,
+		a.memUsage,
+		a.diskUsage,
+		a.terminalStatus,
+		a.runTimeLength,
+		a.updateTime
+		from terminal_status a 
+		left join terminal b on a.terminal_id = b.terminal_id 
+		left join role_terminal e on e.terminal_id = a.terminal_id
+        where e.role_id in 
+         	 <foreach collection="list" item="userlist" index="index"
+            open="(" close=")" separator=",">
+            #{userlist}
+        </foreach>
+         and b.audit_status = 1	
+             <if test="filter==''" >
+         and a.terminalStatus = 0 
+         </if>
+         <if test="filter!=null and filter!='' and filter!='10'" >
+         and a.terminalStatus = #{filter}  
+         </if>
+         <if test="system==1" >
+         and a.SysVersion  like CONCAT('%','Windows','%' )  
+         </if>
+         <if test="system==2" >
+         and a.SysVersion  like CONCAT('%','Android','%' )  
+         </if>
+         order by field(a.terminalstatus,1,2,0) LIMIT #{offset},#{limit};
+    </select>
+    
+    <select id="queryTerminalStatusByUserIdCount" resultType="java.lang.Integer">  
+    select count(*) from ( 
+        select distinct a.terminal_id from terminal_status a
+        left join terminal b on a.terminal_id = b.terminal_id 
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        where e.role_id in 
+         	 <foreach collection="list" item="userlist" index="index"
+            open="(" close=")" separator=",">
+            #{userlist}
+        </foreach>
+         <if test="filter==''" >
+         and a.terminalStatus = 0 
+         </if>
+         <if test="filter!=null and filter!='' and filter!='10'" >
+         and a.terminalStatus = #{filter}  
+         </if>
+         <if test="system==1" >
+         and a.SysVersion  like CONCAT('%','Windows','%' )  
+         </if>
+         <if test="system==2" >
+         and a.SysVersion  like CONCAT('%','Android','%' )  
+         </if>
+         and b.audit_status = 1	) as co;
+        
+    </select>
+    
+    <select id="queryTerminalStatusByGroupId" resultType="beans.terminal.TerminalStatusViewBean">  
+        select distinct 
+		a.terminal_id,
+		b.terminal_name,
+		b.mac,
+		a.terminalJudge,
+		a.sysVersion,
+		a.softVersion,
+		a.cpuUsage,
+		a.memUsage,
+		a.diskUsage,
+		a.terminalStatus,
+		a.runTimeLength,
+		a.updateTime
+		from terminal_status a 
+		left join terminal b on a.terminal_id = b.terminal_id 
+		left join terminal_terminalgroup c on a.terminal_id = c.terminalId 
+		left join role_terminal e on e.terminal_id = a.terminal_id 
+        where e.role_id in 
+         	 <foreach collection="array" item="userlist" index="index"
+            open="(" close=")" separator=",">
+            #{userlist}
+        </foreach>
+         and c.groupId in 
+         <foreach collection="list" item="groupId" index="index"
+            open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+          <if test="filter==''" >
+         and a.terminalStatus = 0 
+         </if>
+         <if test="filter!=null and filter!='' and filter!='10'" >
+         and a.terminalStatus = #{filter} 
+         </if>
+         <if test="system==1" >
+         and a.SysVersion  like CONCAT('%','Windows','%' )  
+         </if>
+         <if test="system==2" >
+         and a.SysVersion  like CONCAT('%','Android','%' )  
+         </if>
+         and b.audit_status = 1	
+         order by field(a.terminalstatus,1,2,0) LIMIT #{offset},#{limit};
+    </select>
+    
+    <select id="queryTerminalStatusByGroupIdCount" resultType="java.lang.Integer">  
+    select count(*) from (
+        select distinct a.terminal_id from terminal_status a 
+		left join terminal b on a.terminal_id = b.terminal_id 
+		left join terminal_terminalgroup c on a.terminal_id = c.terminalId 
+		left join role_terminal e on e.terminal_id = a.terminal_id 
+        where e.role_id in 
+         	 <foreach collection="array" item="userlist" index="index"
+            open="(" close=")" separator=",">
+            #{userlist}
+        </foreach> 
+         and c.groupId in 
+         <foreach collection="list" item="groupId" index="index"
+            open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+         <if test="filter==''" >
+         and a.terminalStatus = 0 
+         </if>
+         <if test="filter!=null and filter!='' and filter!='10'" >
+         and a.terminalStatus = #{filter} 
+         </if>
+         
+         <if test="system==1" >
+         and a.SysVersion  like CONCAT('%','Windows','%' )  
+         </if>
+         <if test="system==2" >
+         and a.SysVersion  like CONCAT('%','Android','%' )  
+         </if>
+       and b.audit_status = 1	) as co;
+    </select>
+    
+     
+       
+       <update id="updateTerminalStatusByTerminalId" parameterType="beans.terminal.TerminalStatusBean" >
+		update terminal_status
+		<set>
+			<if test="terminalJudge != null">
+			terminalJudge = #{terminalJudge},
+			</if>
+			<if test="sysVersion != null">
+			sysVersion = #{sysVersion},
+			</if>
+			<if test="softVersion != null">
+			softVersion = #{softVersion},
+			</if>
+			<if test="cpuUsage != null">
+			cpuUsage = #{cpuUsage},
+			</if>
+			<if test="memUsage != null">
+			memUsage = #{memUsage},
+			</if>
+			<if test="diskUsage != null">
+			diskUsage = #{diskUsage},
+			</if>
+			<if test="terminalStatus != null">
+			terminalStatus = #{terminalStatus},
+			</if>
+			<if test="runTimeLength != null">
+			runTimeLength = #{runTimeLength},
+			</if>
+			updateTime = null
+			</set>
+			where terminal_id = #{terminal_id}
+	   </update>
+    
+       <delete id="deleteTerminalStatusByTerminalId" parameterType="beans.terminal.TerminalBean" >  
+        delete from terminal_status  
+        where terminal_id = #{terminal_id};
+       </delete>
+    
+    
+       <select id="queryTerminalStatusById" resultType="beans.terminal.TerminalStatusViewBean" parameterType="java.lang.Integer" >
+		 select 
+			 a.terminal_id as terminal_id,
+	         b.terminal_name as terminal_name,
+	         a.terminalJudge as terminalJudge,
+	         a.sysVersion as sysVersion,
+	         a.softVersion as softVersion,
+	         a.cpuUsage as cpuUsage,
+	         a.memUsage as memUsage,
+	         a.diskUsage as diskUsage,
+	         a.terminalStatus as terminalStatus,
+	         a.runTimeLength as runTimeLength,
+	         a.updateTime as updateTime
+         from terminal_status a 
+         left join terminal b on a.terminal_id = b.terminal_id 
+         <where>
+	          a.terminal_id in
+	          <foreach collection="array" item="terminalId" index="index" open="(" close=")" separator=",">
+		            #{terminalId}
+		      </foreach>
+	           and b.audit_status = 1	
+         </where> 
+	</select>
+	<!-- 查询terminal_status信息 -->
+	<select id="selectDiskUsage" resultType="util.TTerminal">
+	 SELECT w.terminal_NAME NAME, diskUsage FROM terminal_status t ,terminal w WHERE t.DiskUsage > 80 AND t.TerminalJudge = 0 AND t.TerminalStatus=1 AND t.terminal_id = w.terminal_id
+	</select>
+	
+	<select id="querycloseTimeByTerminalId" resultType="beans.terminal.TerminalCloseTime" parameterType="java.lang.Integer" >
+		 select 
+		 tc.terminalId,t.terminal_name,t.mac,tc.startTime,tc.endTime,tc.days
+		 from terminal_closetime tc ,terminal t
+	     <where>
+		     tc.terminalId=t.terminal_id 
+		     and terminalId in
+	          <foreach collection="array" item="terminalId" index="index" open="(" close=")" separator=",">
+	        	#{terminalId}
+	          </foreach>
+	     </where>
+        order by tc.terminalId
+	</select>
+	
+	<select id="queryMacAndTime" resultType="beans.view.TerminalMac">
+		SELECT tc.terminalId,tc.startTime,tc.endTime,tc.days,t.mac,t.ip FROM terminal_closetime tc LEFT JOIN terminal t ON  t.terminal_id = tc.terminalId
+	</select>	
+	<select id="querycloseTimeCountByTerminalId" resultType="java.lang.Integer" parameterType="java.lang.String" >
+		 select 
+		 count(*) 
+		 from terminal_closetime 
+         where terminalId in
+         <foreach collection="array" item="terminalid" index="index" open="(" close=")" separator=",">
+          	#{terminalid}
+         </foreach>
+	</select>
+	
+	<insert id="insertcloseTimeByTerminalId" parameterType="ArrayList">  
+        insert into terminal_closetime
+        (terminalId,startTime,endTime,days)
+         values 
+        <foreach collection="list" item="item" index="index" separator=",">
+        	(
+	        	#{item.terminalid},
+	        	#{item.opentime},
+	        	#{item.closetime},
+	        	#{item.days}
+        	)
+        </foreach>
+    </insert>  
+    
+    <update id="updatecloseTimeByTerminalId" parameterType="ArrayList" >
+		update terminal_closetime
+		<set>
+			<if test="startTime != null">
+			startTime = #{startTime},
+			</if>
+			<if test="endTime != null">
+			endTime = #{endTime},
+			</if>
+		</set>
+		where terminalId = #{terminalId}
+	</update>
+	
+	<delete id="deletecloseTimeByTerminalId"  >  
+        delete from terminal_closetime  
+        where terminalId in
+        <foreach collection="array" item="terminalid" index="index" open="(" close=")" separator=",">
+        	#{terminalid}
+        </foreach>
+    </delete>
+    <delete id="deletecloseTimeByTerminalIds" parameterType="beans.terminal.TerminalBean" >  
+        delete from terminal_closetime  
+        where terminalId in
+        <foreach collection="terminalIdList" item="item" index="index" open="(" close=")" separator=",">
+        	#{item}
+        </foreach>
+    </delete>
+    <select id="queryTerminalTimingSet" resultType="beans.terminal.TerminalDownloadTime">
+	     select 
+			 td.terminalId,t.terminal_name,t.mac,td.startTime,td.endTime,td.days
+			 from terminal_downloadtime td ,terminal t
+		     where td.terminalId=t.terminal_id and terminalId in
+	          <foreach collection="array" item="terminalId" index="index" open="(" close=")" separator=",">
+	        	#{terminalId}
+	        </foreach>
+	        order by td.terminalId
+    </select>
+    <select id="queryDownloadCountByTerminalId" resultType="java.lang.Integer"
+       parameterType="java.lang.String" 
+		 flushCache="true">
+		 select 
+		 count(*) 
+		 from terminal_downloadtime 
+         where terminalId in
+         <foreach collection="array" item="terminalid" index="index" open="(" close=")" separator=",">
+          	#{terminalid}
+         </foreach>
+	</select>
+	<delete id="deleteDownloadByTerminalId" parameterType="java.lang.String"  
+        flushCache="true">  
+        delete from terminal_downloadtime  
+        where terminalId in
+        <foreach collection="array" item="terminalid" index="index" open="(" close=")" separator=",">
+        	#{terminalid}
+        </foreach>
+       </delete>
+       <insert id="insertDownloadByTerminalId" parameterType="java.util.ArrayList">  
+        insert into terminal_downloadtime(terminalId,startTime,endTime,days) values 
+        <foreach collection="list" item="item" index="index" separator=",">
+        	(#{item.terminalId},#{item.startTime},#{item.endTime},#{item.days})
+        </foreach>
+    </insert> 
+</mapper>    

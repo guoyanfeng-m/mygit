@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.nav.NavDao">  
+    
+   
+    
+    <!-- 父类查询 -->
+   <select id="queryNavPid" resultType="beans.nav.NavBean"  >
+      SELECT  a.id,a.pid,a.name,a.url from t_nav a where a.pid = 0 GROUP BY a.id ASC
+   </select>
+   
+     <!-- 根据父类查子类查询 -->
+   <select id="queryNavByPId" resultType="beans.nav.NavBean" parameterType="Integer" >
+      SELECT  a.id,a.pid,a.name,a.url from t_nav a where a.pid =#{pid}
+   </select>
+   
+      <!-- 根据父类查子类查询 -->
+   <select id="queryNavById" resultType="beans.nav.NavBean" parameterType="Integer" >
+      SELECT  a.id,a.pid,a.name,a.url from t_nav a where a.id =#{id}
+   </select>
+   
+   <select id="queryNav" resultType="beans.nav.NavBean"  parameterType="map"> 
+      	SELECT 
+	      	a.id,a.pid,a.name,a.url 
+      	FROM t_nav a
+        order by a.id ASC  LIMIT #{offset},#{limit}
+    </select>
+    
+    <!-- 全查询 -->
+   <select id="queryNavAll" resultType="beans.nav.NavBean"  >
+      SELECT 
+	      	a.id,a.pid,a.name,a.url 
+      FROM t_nav a
+   </select>
+   
+   <insert id="insertNav" parameterType="beans.nav.NavBean">
+    	insert into t_nav(pid,name,url)
+		values(#{pid},#{name},#{url})
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID() AS id
+		</selectKey>
+    </insert>
+    
+    <update id="updateNavById" parameterType="beans.nav.NavBean" flushCache="true">
+		update t_nav
+		<set>
+			<if test="pid != null">
+			pid = #{pid},
+			</if>
+			<if test="name != null">
+			name = #{name},
+			</if>
+			<if test="url != null">
+			url = #{url},
+			</if>
+		</set>
+		where id = #{id}
+   </update>
+   
+   <delete id="deleteNavById" flushCache="true">
+		delete from t_nav
+		where id = #{id}  
+    </delete>
+   
+</mapper>

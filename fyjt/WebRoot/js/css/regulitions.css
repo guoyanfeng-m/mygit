@@ -1,0 +1,40 @@
+.right{
+    padding: 0;
+}
+.right> h2{
+    border-bottom: 2px solid #939393;
+    width: 1032px;
+    text-align: right;
+    float: right;
+    height: 58px;
+}
+.con{
+    background: url(../images/pub-bg.png) no-repeat;
+}
+.tabGroup{
+    float: left;
+}
+.right .tabGroup  .tab{
+    float: left;.right 
+	color: #6a6a6a;
+    height: 51px;
+    font-size: 30px;
+    background: none;
+    border-bottom: 4px solid #f27e06;
+    z-index: 3;
+}
+.right .tabGroup  .tab::after{
+    background: none;
+}
+.right .contentGroup{
+    border-top: none;
+}
+.dyna-ul li .dyna-ul-word p{
+	text-align:left;
+}
+.dyna-ul li .dyna-ul-word .time{
+	float:left;
+}
+.dyna-ul li h2{
+	text-align:left;
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.terminal.TerminalTerminalGroupDao">  
+    <insert id="insertTerminalTerminalGroups" parameterType="beans.terminal.TerminalTerminalGroupBean">  
+        insert into 
+        terminal_terminalgroup
+	        (
+		        terminalId,
+		        groupId
+	        ) 
+        values
+	        <foreach collection="terminalTerminalGroupList" item="item" index="index"  separator=",">
+	             (
+			        #{item.terminalId},
+			        #{item.groupId}
+			       ) 
+	        </foreach>
+    </insert>  
+       
+   <delete id="deleteTerminalTerminalGroupById" parameterType="beans.terminal.TerminalTerminalGroupBean" >  
+        delete from terminal_terminalgroup 
+        <where>
+	        <if test="terminalId != null">terminalId=#{terminalId}  </if> 
+		    <if test="groupId != null "> and groupId=#{groupId}  </if> 
+        </where>
+    </delete>
+     
+    <update id="updateTerminalTerminalGroupByTerminalId" parameterType="beans.terminal.TerminalTerminalGroupBean">
+		update terminal_terminalgroup
+		<set>
+		   groupId = #{groupId} 
+		</set>
+		where 
+		    terminalId = #{terminalId}
+    </update>
+    
+    <select id="queryTerminalTerminalGroupByTerminalId" resultType="beans.terminal.TerminalTerminalGroupBean"   parameterType="beans.terminal.TerminalTerminalGroupBean">  
+        select 
+        *
+        from terminal_terminalgroup 
+        <where>
+	        <if test="terminalId != null">  terminalId=#{terminalId}  </if> 
+	        <if test="groupId != null"> and groupId=#{groupId}  </if> 
+        </where>
+    </select> 
+    <!-- 查找终端组 --> 
+    <select id="queryRoleTerminalgroupByUserID" resultType="beans.roletree.ResultGroupBean">
+		  SELECT 
+				a.t_id,
+				a.GroupName,
+				a.ParentID 
+		 FROM terminalgroup a 
+			LEFT JOIN role_terminalgroup b ON a.`t_id`=b.`terminalgroup_id`
+			LEFT JOIN `role` c ON  c.`role_id`=b.`role_id`
+			LEFT JOIN user_role d ON d.`role_id`=c.`role_id`
+			LEFT JOIN USER e ON e.`user_id`=d.`user_id`
+		<where>
+		     e.user_id=#{userId}
+		</where>
+		GROUP BY a.`t_id`
+    </select>
+    <!-- 删除终端终端组管理表中的数据 -->
+    <delete id="deleteTerminalTerminalGroupByIds" parameterType="beans.terminal.TerminalBean">
+            delete from terminal_terminalgroup 
+        <where>
+            <if test="terminal_id !=null and terminal_id !=0 ">
+                  TerminalID = #{terminal_id}
+            </if>
+	        <if test="terminalIdList != null">
+	             and TerminalID in 
+	              <foreach collection="terminalIdList" item="item" index="index" open="(" close=")" separator=",">
+	                  #{item}  
+	              </foreach>
+	        </if> 
+		    <if test="groupIdList != null "> 
+		          and GroupID in
+		         <foreach collection="groupIdList" item="item" index="index" open="(" close=")" separator=",">
+	                  #{item}  
+	              </foreach> 
+		    </if> 
+        </where>
+    </delete>
+    <!-- 查找终端终端组数据 -->
+    <select id="selectTerminalTerminalGroupTerminalIds" parameterType="beans.terminal.TerminalBean" resultType="java.lang.Integer">
+       SELECT  
+             TerminalID   
+       FROM `terminal_terminalgroup` 
+       <where>
+	       TerminalID IN 
+	       <foreach collection="terminalIdList" item="item" index="index" open="(" close=")" separator=",">
+	                   #{item}
+	       </foreach> 
+       </where>
+    </select>
+    <!-- 根据终端id查询终端所属终端组 -->
+    <select id="selectTerminalGroupIds" parameterType="beans.terminal.TerminalBean" resultType="java.lang.String">
+			SELECT 
+			      GROUP_CONCAT(a.GroupID)  groupIds
+			FROM  terminal_terminalgroup  a 
+			LEFT JOIN terminal b ON b.terminal_id = a.terminalID 
+			LEFT JOIN terminalgroup c ON c.t_id = a.GroupID 
+			LEFT JOIN role_terminal d ON d.terminal_id = a.terminalID 
+			<where> 
+				 b.is_verify=1 
+				 AND b.deleted=0 
+				 AND a.TerminalID=#{terminal_id}
+				 AND d.role_id IN ( SELECT role_id FROM `user_role` e WHERE  e.user_id=#{creator_id} )  
+		    </where>
+    </select>
+</mapper>    

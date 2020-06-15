@@ -1,0 +1,47 @@
+.con{
+    width: 100%;
+    height: 1500px;
+    background: url(../images/dynamic-bg.png) no-repeat;
+}
+.right{
+    /*height: 1224px;*/
+}
+.dyna-ul li h2{
+    font-size: 22px;
+    color: #383838;
+    font-weight: normal;
+    margin: 30px 20px 15px 0;
+    text-align: left;
+}
+.dyna-ul li h2 img{
+    margin-right: 5px;
+    margin-left: 10px;
+}
+.dyna-ul li .dyna-ul-word{
+    width: 1177px;
+    border: 1px solid #e0e0e0;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+.dyna-ul li .dyna-ul-word p{
+    font-size: 14px;
+    color: #606060;
+    line-height: 30px;
+    text-align: left;
+    
+}
+.dyna-ul li .dyna-ul-word .time{
+    font-size: 14px;
+    color: #9c9c9c;
+	position: absolute;
+    left: 30px;
+}
+.dyna-ul li .dyna-ul-word .detail{
+    float: right;
+    margin-top: 20px;
+}
+.right .page{
+    margin-top: 40px;
+}

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.notice.NoticeDao">
+   <select id="queryNotice" resultType="beans.notice.NoticeBean"  parameterType="map"> 
+      	SELECT 
+	      	a.id,
+	      	a.title,
+	      	a.description,
+	      	a.status,
+	      	a.create_time,
+	      	a.update_time,
+	      	a.creator_id,
+	      	a.update_id,
+	      	u.realname 
+      	FROM notice a 
+      	left join user u on a.update_id=u.user_id
+      	Where a.status !='D' 
+      	<if test="sStatus != null">
+			and a.status= #{sStatus}
+		</if>
+      	<if test="sName != null">
+			 and a.title like CONCAT('%','${sName}','%' ) 
+		</if>
+        order by a.update_time desc  LIMIT #{offset},#{limit}
+    </select>
+    
+    <!-- 全查询 -->
+   <select id="queryNoticeAll" resultType="beans.notice.NoticeBean"  parameterType="map">
+      SELECT  a.* from notice a Where a.status !='D' 
+      	<if test="sStatus != null">
+			and a.status= #{sStatus}
+		</if>
+      	<if test="sName != null">
+			 and a.title like CONCAT('%','${sName}','%' ) 
+		</if>
+		order by a.update_time desc
+   </select>
+   
+   <!-- 根据id查询 -->
+   <select id="queryNoticeById" resultType="beans.notice.NoticeBean"  parameterType="Integer">
+      SELECT  a.* from notice a Where a.status ='Y'  and a.id= #{id} 
+   </select>
+   
+   <insert id="insertNotice" parameterType="beans.notice.NoticeBean">
+    	insert into notice(title,description,status,create_time,update_time,creator_id,update_id)
+		values(#{title},#{description},#{status},#{create_time},#{update_time},#{creator_id},#{update_id})
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="carousel_id">
+			SELECT LAST_INSERT_ID() AS id
+		</selectKey>
+    </insert>
+    
+    <update id="updateNoticeById" parameterType="beans.notice.NoticeBean" flushCache="true">
+		update notice
+		<set>
+			<if test="title != null">
+			title = #{title},
+			</if>
+			<if test="description != null">
+			description = #{description},
+			</if>
+			<if test="status != null">
+			status = #{status},
+			</if>
+			<if test="update_time != null">
+			update_time = #{update_time},
+			</if>
+			<if test="update_time != null">
+			update_id = #{update_id},
+			</if>
+		</set>
+		where id = #{id}
+   </update>
+</mapper>    

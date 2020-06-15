@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.scrollingnews.ScrollingnewsTerminalDao"> 
+   <!-- 添加 -->
+   <insert id="insertScrollTerminal" parameterType="beans.scrollingnews.ScrollingnewsTerminalBean">
+      insert into scrollingnews_terminal(terminal_id,scrollingNews_id) values(#{terminal_id},#{scrollingNews_id})
+   </insert> 
+   <!-- 删除 -->
+   <delete id="delScrollTerminal" parameterType="beans.scrollingnews.ScrollingnewsTerminalBean">
+         delete from scrollingnews_terminal
+      <where>
+        <choose>
+          <when test="terminal_id != null  and scrollingNews_id == null ">
+            and terminal_id=#{terminal_id}
+          </when>
+          <when test="scrollingNews_id != null and terminal_id == null  ">
+            and scrollingNews_id=#{scrollingNews_id}
+          </when>
+          <when test="terminal_id != null  and scrollingNews_id != null ">
+            and terminal_id=#{terminal_id}  and scrollingNews_id=#{scrollingNews_id}
+          </when>
+        </choose>
+      </where>
+   </delete>
+   
+   <!-- 全查询 -->
+   <select id="queryAll" resultType="beans.scrollingnews.ScrollingnewsTerminalBean">
+      select * from scrollingnews_terminal
+   </select>
+         <!-- 分页查询 -->
+   <select id="queryPage" resultType="beans.scrollingnews.ScrollingnewsTerminalBean" parameterType="map">
+      select * from scrollingnews_terminal  LIMIT #{offset},#{limit}
+   </select>
+   <!-- 条件查询 -->
+   <select id="queryScrollTerminal" parameterType="beans.scrollingnews.ScrollingnewsTerminalBean" resultType="beans.scrollingnews.ScrollingnewsTerminalBean">
+       select * from scrollingnews_terminal
+       <where>
+         <choose>
+            <when test="terminal_id !=null and terminal_id != '' ">
+              and terminal_id=#{terminal_id}
+            </when>
+            <when test="scrollingNews_id != null and scrollingNews_id != '' ">
+              and scrollingNews_id=#{scrollingNews_id}
+            </when>
+            <when test="scrollingNews_id != null and scrollingNews_id != '' and scrollingNews_id != null and scrollingNews_id != '' ">
+              and scrollingNews_id=#{scrollingNews_id} and terminal_id=#{terminal_id}
+            </when>
+            <otherwise></otherwise>
+         </choose>
+       </where>
+   </select>
+</mapper>    

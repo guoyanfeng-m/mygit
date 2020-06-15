@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.license.LicenseDao">  
+    <insert id="insertLicense" parameterType="beans.license.LicenseBean">  
+        insert into t_license(mac,hardinfo,license) values(#{mac},#{hardinfo},#{license})
+    </insert>  
+    
+    <insert id="updateLicense" parameterType="beans.license.LicenseBean">  
+     update t_license set license=#{license} where mac=#{mac}
+    </insert> 
+    
+    <!-- 根据key 查询value -->
+    <select id="queryByLicense" parameterType="java.lang.String" resultType="beans.license.LicenseBean">
+      select * from t_license 
+      <where>
+        <if test="license == 0 ">
+        and license is null or license=''
+        </if>
+      </where>
+    </select>
+
+    <!-- 根据key 查询value -->
+    <select id="queryMac"  resultType="java.lang.String">
+      select mac from t_license 
+    </select>
+    
+    <!-- 查询license表中的数据 -->
+    <select id="queryLicenseCount" resultType="java.lang.Integer">
+      select count(*) from t_license
+    </select>
+</mapper>

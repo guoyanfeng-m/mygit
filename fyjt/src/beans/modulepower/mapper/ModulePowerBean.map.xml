@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.modulepower.ModulePowerDao">  
+<!--<select id="queryRole" resultType="beans.role.RoleViewBean"  -->
+<!--        parameterType="beans.role.RoleViewBean"> -->
+<!--        SELECT role_id , role_name, description ,creator_id,create_time FROM role WHERE deleted=0 -->
+<!--        <if test="role_name != null and role_name != ''"> and role_name=#{role_name}  </if> -->
+<!--    </select> -->
+    <select id="queryModule" resultType="beans.modulepower.ModulePowerRoleResultBean"   parameterType="int"> 
+    	SELECT DISTINCT	d.module_name,d.module_id FROM role a, `user` b, user_role c,module d, modulepower e, role_modulepower f WHERE a.role_id=c.role_id AND c.user_id=b.user_id AND a.role_id=f.role_id AND f.power_id= e.t_id AND e.ModuleID = d.module_id AND b.user_id=#{userid} and power_id &gt;1
+    </select>
+     <select id="queryModulePower"  resultType="beans.modulepower.ResultBean" parameterType="beans.modulepower.ModulepowerParametersBean"> 
+    	SELECT e.PowerName,e.t_id FROM role a, `user` b, user_role c,module d, modulepower e, role_modulepower f WHERE a.role_id=c.role_id AND c.user_id=b.user_id AND a.role_id=f.role_id AND f.power_id= e.t_id AND e.ModuleID = d.module_id AND b.user_id=#{userid} AND d.module_name=#{modulename}
+    </select>
+    
+     <select id="queryModulePowerID"  resultType="String" parameterType="int"> 
+    SELECT 	f.power_id FROM role a, `user` b, user_role c, role_modulepower f WHERE a.role_id=c.role_id AND c.user_id=b.user_id AND a.role_id=f.role_id AND  b.user_id=#{userid} AND power_id &gt;1
+    </select>
+</mapper>    

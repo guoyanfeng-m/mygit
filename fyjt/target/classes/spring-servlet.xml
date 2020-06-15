@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<description> Spring MVC Configuration</description>
+    
+    <!-- 加载配置属性文件 -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:fdp.properties" />
+	
+    <!-- 开启aspectJ支持, 强制使用cglib实现动态代理 -->
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+    
+	 <!-- 定时器task任务扫描注解 -->
+	 <task:annotation-driven/> 
+	  <context:annotation-config/>
+	 <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	 <context:component-scan base-package="util"/>
+	 <!-- 启用spring mvc 注解 -->
+     <!-- 使用Annotation自动注册Bean,只扫描@Controller -->
+	 <!-- base-package 如果多个，用“,”分隔 -->	
+	 <context:component-scan base-package="controller" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	 </context:component-scan>
+	  
+    <!-- Spring mvc 注解驱动 -->
+    <!-- 默认加载了很多参数绑定的方法 ，比如json解析器等；也可以对一些参数绑定机制进行转换自定义扩展-->
+	<!-- 默认的注解映射的支持，org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping -->
+	<!-- conversion-service  自动扩展参数绑定方法 -->
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
+		<mvc:message-converters register-defaults="true">
+			<!-- 将StringHttpMessageConverter的默认编码设为UTF-8 -->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+		    	<constructor-arg value="UTF-8" />
+			</bean>
+			<!-- 将Jackson2HttpMessageConverter的默认格式化输出为false -->
+			<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                	<list>
+                	      <value>application/json;charset=UTF-8</value>
+                	      <value>text/plain;charset=UTF-8</value>
+                	      <value>text/*;charset=UTF-8</value>
+                	      <value>*/*;charset=UTF-8</value>
+                	</list>
+                </property>
+                <property name="prettyPrint" value="false"/>
+            </bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+    
+    <!-- Spring MVC的“内容协商”策略，2016-07-20 禁用了2种“内容协商”策略 -->
+    <!-- 由于咱前台拦截的*.htm，经过“内容协商”后，无法正确的响应ajax请求 -->
+    <!-- //REST中根据URL后缀自动判定Content-Type及相应的View -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+	    <property name="mediaTypes" >
+	        <map> 
+                <entry key="xml" value="application/xml"/> 
+                <entry key="json" value="application/json"/> 
+            </map>
+	    </property>
+        <property name="ignoreAcceptHeader" value="false"/><!-- 是否支持accept-header匹配，默认为fasle -->
+        <property name="favorPathExtension" value="false"/><!-- 是否支持后缀匹配 -->
+        <property name="favorParameter" value="true"/><!-- 是否支持参数匹配 --><!-- 用于开启 /userinfo/a.htm?format=json 的支持 --> 
+	</bean>
+    
+    <!-- 对静态资源文件的访问， 将无法mapping到Controller的path交给default servlet handler处理 -->
+	<mvc:default-servlet-handler />
+	
+	<!-- 静态资源映射 -->
+    <mvc:resources mapping="/**" location="/" />
+	
+    <!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="${web.view.prefix}"/>
+		<property name="suffix" value="${web.view.suffix}"/>
+	</bean>
+	
+	<!-- SpringMVC上传文件时，需要配置MultipartResolver处理器 -->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+          <property name="defaultEncoding" value="utf-8" /> 
+           <!-- 指定所上传文件的总大小不能超过10485760KB。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->   
+          <property name="maxUploadSize" value="10485760000" />  
+          <property name="maxInMemorySize" value="40960" />  
+    </bean> 
+</beans>

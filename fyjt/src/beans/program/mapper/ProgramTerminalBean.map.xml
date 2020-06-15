@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.program.ProgramTerminalDao">
+	<insert id="insertProgramTerminal" parameterType="beans.program.ProgramTerminalBean">
+		insert into program_terminal
+		values(#{program_id},#{terminal_id},#{publishTime})
+	</insert>
+	<select id="queryProgramTerminal" resultType="beans.program.view.ProgramTerminalView"  parameterType="beans.program.ProgramTerminalBean">
+        select  
+		        p.type as type,
+		        pt.program_id as program_id,
+		        p.name as program_name,
+		        ttg.GroupID as group_id,
+		        pt.terminal_id as terminal_id,
+		        t.mac as mac,
+		        t.ip as terminal_ip,
+		        t.terminal_name as terminal_name,
+		        tg.GroupName as group_name,
+		        p.schedulelevel as schedulelevel
+        from program_terminal as pt 
+        left join terminal t on pt.terminal_id=t.terminal_id 
+        left join terminal_terminalgroup ttg on t.terminal_id=ttg.TerminalID 
+        left join program p on p.program_id=pt.program_id 
+        left join terminalgroup tg on ttg.GroupID=tg.t_id  
+        <where>
+	        <if test="program_id != null ">  pt.program_id=#{program_id}  </if> 
+	        <if test="terminal_id != null ">  and pt.terminal_id=#{terminal_id}  </if> 
+        </where>
+    </select> 
+    <delete id="deleteProgramTerminal" parameterType="beans.program.ProgramTerminalBean" >  
+        delete from program_terminal
+        <where>
+	        <if test="program_id != null ">  program_id=#{program_id}  </if> 
+	        <if test="terminal_id != null ">  and terminal_id=#{terminal_id}  </if> 
+        </where>
+	</delete>
+	<select id="queryByTerminalId" parameterType="beans.program.ProgramTerminalBean" resultType="beans.program.view.ProgramTerminalView">  
+	        select * from program_terminal
+	        <where>
+		        <if test="program_id != null ">  
+		              program_id=#{program_id}  
+		        </if> 
+		        <if test="terminal_id != null ">  
+		              and terminal_id=#{terminal_id}  
+		        </if> 
+		        <if test="terminalIds != null">
+		            and terminal_id in 
+		              <foreach collection="terminalIds" item="item" index="index" open="(" close=")" separator=",">
+		                  #{item}  
+		              </foreach>
+		        </if>
+	        </where>
+	</select>
+	<update id="updateProgramTerminal" parameterType="beans.program.ProgramTerminalBean">
+			update program_terminal
+			<set>
+				publishTime=#{publishTime},
+			</set>
+			where program_id =#{program_id} and terminal_id =#{terminal_id}
+	</update>
+			
+	<select id="queryProgramIdByTerminalId" resultType="java.lang.Integer" parameterType="java.util.Map"> 
+	    SELECT 
+	    		program_id 
+	    FROM program_terminal 
+	    <where>
+	      terminal_id = #{terminal_id} 
+	     <if test="program_id != null">  and program_id != #{program_id}  </if> 
+	    </where>
+	</select>
+	   	  
+	<select id="queryTerminalNameByTerminalId" resultType="java.lang.String" > 
+		 SELECT terminal_name FROM terminal WHERE terminal_id = #{terminalId}
+	</select> 
+	
+	<select id="queryPubProgramByIds" resultType="beans.program.ProgramBean">
+		select
+			a.startTime,
+			a.endTime,
+			a.name,
+			a.xmlcontent,
+			a.schedulelevel,
+			a.type
+		from program a
+		<where>
+			 a.deleted=0 
+			 and a.isSend=1
+			<if test="list.size() > 0">  
+				 and a.program_id in
+				<foreach collection="list" item="programIdList" index="index" open="(" close=")" separator=",">
+					#{programIdList}
+				</foreach>
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryTerminalIdByProgramId" resultType="java.lang.Integer" parameterType="java.lang.Integer"> 
+	    SELECT terminal_id FROM program_terminal WHERE program_id = #{program_id} 
+	</select> 
+	
+	<select id="queryProgramIdByTerminalIdList" resultType="beans.program.ProgramTerminalBean" parameterType="java.lang.Integer">
+		select 
+			terminal_id,
+			program_id 
+		from program_terminal 
+		where terminal_id in
+		<foreach collection="list" item="terminalIdList" index="index" open="(" close=")" separator=",">
+			#{terminalIdList}
+		</foreach>
+	</select> 
+	
+	<select id="queryTerminalIdByMacs" resultType="beans.program.ProgramTerminalBean" parameterType="java.lang.String">
+		select 
+				t.terminal_id,
+				t.mac,
+				pt.program_id 
+		from terminal t 
+		left join program_terminal pt ON t.`terminal_id`=pt.`terminal_id`
+		<where>
+			t.mac in
+			<foreach collection="array" item="macList" index="index" open="(" close=")" separator=",">
+				#{macList}
+			</foreach>
+		</where> 
+	</select> 
+</mapper>    

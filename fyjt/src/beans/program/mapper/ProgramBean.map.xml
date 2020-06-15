@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.program.ProgramDao">
+	<insert id="insertProgram" parameterType="beans.program.ProgramBean">
+		insert into program
+		values(#{program_id},#{url},#{name},#{startTime},#{endTime},#{audit_status},#{updateTime},#{creator_id},#{deleted},#{xmlcontent},#{isSend},#{create_time},#{schedulelevel},#{type})
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="program_id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="deleteProgramByIds">
+		update program
+		<set>
+			deleted=1,
+		</set>
+		where program_id in
+		<foreach collection="list" item="idList" index="index" open="(" close=")" separator=",">
+			#{idList}
+		</foreach>
+	</update>
+	<update id="auditProgram" parameterType="beans.program.ProgramBean">
+		update program
+		<set>
+			audit_status=#{audit_status},
+		</set>
+		where program_id =#{program_id}
+	</update>
+	<update id="updateProgram" parameterType="beans.program.ProgramBean">
+		update program
+		<set>
+			<if test="url != null">
+				url = #{url},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="startTime != null">
+				startTime = #{startTime},
+			</if>
+			<if test="endTime != null">
+				endTime = #{endTime},
+			</if>
+			<if test="audit_status != null">
+				audit_status = #{audit_status},
+			</if>
+			<if test="creator_id != null">
+				creator_id = #{creator_id},
+			</if>
+			<if test="deleted != null">
+				deleted = #{deleted},
+			</if>
+			<if test="xmlcontent != null">
+				xmlcontent = #{xmlcontent},
+			</if>
+			<if test="isSend != null">
+				isSend = #{isSend},
+			</if>
+			updateTime = null,
+			schedulelevel = #{schedulelevel}
+		</set>
+		where program_id = #{program_id}
+	</update>
+
+	<select id="queryProgram" resultType="beans.program.ProgramViewBean" parameterType="map">
+		select
+		a.program_id,
+		a.url,
+		a.name,
+		a.startTime,
+		a.endTime,
+		a.audit_status,
+		a.updateTime,
+		a.creator_id,
+		a.deleted,
+		a.xmlcontent,
+		a.isSend,
+		a.create_time,
+		a.type,
+		d.userName,
+		d.realname,
+		a.schedulelevel
+		from program
+		a
+		left join user d on d.user_id = a.creator_id
+		where 1=1
+		<if test="ProgramBean.program_id != null and ProgramBean.program_id != ''"> and a.program_id=#{ProgramBean.program_id}  </if>
+		<if test="ProgramBean.name != null and ProgramBean.name != ''"> and a.name like CONCAT('%','${ProgramBean.name}','%' )  </if>
+		<if test="userids.size()>0">
+			and d.user_id in
+			<foreach collection="userids" item="idList" index="index" open="(" close=")" separator=",">
+				#{idList}
+			</foreach>
+		</if>
+		<if test="creatorid != null and creatorid != ''">
+			and d.user_id =#{creatorid}
+		</if>
+		and a.deleted=0 order by a.updateTime DESC LIMIT #{offset},#{limit};
+	</select>
+	<select id="queryProgramByName" resultType="beans.program.ProgramBean" parameterType="string">
+		select
+		a.program_id,
+		a.url,
+		a.name,
+		a.startTime,
+		a.endTime,
+		a.audit_status,
+		a.updateTime,
+		a.creator_id,
+		a.deleted,
+		a.xmlcontent,
+		a.isSend,
+		a.create_time,
+		a.type
+		from program a
+		where a.name=#{name} and deleted=0
+	</select>
+
+	<select id="queryProgramCount" resultType="java.lang.Integer">
+		select count(1) as count from program a
+		left join user d on d.user_id = a.creator_id
+		where 1=1
+		<if test="programBean.program_id != null and programBean.program_id != ''"> and a.program_id=#{programBean.program_id}  </if>
+		<if test="programBean.name != null and programBean.name != ''"> and a.name like CONCAT('%','${programBean.name}','%' )  </if>
+		<if test="userids.size()>0">
+			and d.user_id in
+			<foreach collection="userids" item="idList" index="index" open="(" close=")" separator=",">
+				#{idList}
+			</foreach>
+		</if>
+		<if test="creatorid != null and creatorid != ''">
+			and d.user_id =#{creatorid}
+		</if>
+		and a.deleted=0 order by a.updateTime;
+	</select>
+	<select id="queryProgramByIds" resultType="beans.program.ProgramBean">
+		select
+		a.program_id,
+		a.url,
+		a.name,
+		a.startTime,
+		a.endTime,
+		a.audit_status,
+		a.updateTime,
+		a.creator_id,
+		a.deleted,
+		a.xmlcontent,
+		a.isSend,
+		a.create_time,
+		a.schedulelevel,
+		a.type
+		from program a
+		where a.deleted=0 and
+		a.program_id in
+		<foreach collection="list" item="idList" index="index" open="(" close=")" separator=",">
+			#{idList}
+		</foreach>
+	</select>
+
+	<!-- wangyulin 2014/12/18 -->
+	<select id="queryElementCount" resultType="java.lang.Integer" parameterType="map">
+		SELECT COUNT(DISTINCT e.elem_path) FROM element e WHERE e.elem_path IN
+		<foreach collection="list" item="urllist" index="index" open="(" close=")" separator=",">
+			#{urllist}
+		</foreach>
+	</select>
+	<!-- 通过节目的id查找节目xml协议信息 -->
+	<select id="selectProgramXmlById" resultType="java.lang.String" parameterType="beans.program.ProgramBean">
+		SELECT p.`xmlcontent` FROM program p
+		<where>
+			 p.`program_id`=#{program_id}
+		</where>
+	</select>
+</mapper>    

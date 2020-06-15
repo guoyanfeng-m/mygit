@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugs>
+	<!-- 
+		互动相册：type：1
+		时钟：type：5
+		天气预报 type：6
+		互动office type：7
+		互动视频 type：8
+		倒计时 type:9
+		
+		（班牌特有组件）
+		班级名称：type:101
+		班级信息：type:102
+		作文： type:103
+		
+		(人民日报)
+		详情：type:10
+		按钮组：type:201
+		
+	 -->
+	 <!-- 倒计时 -->
+	 <plug width="200" height="200" id="plug1" left="0" name="倒计时" top="0" type="9" >
+	 	<count endtime="2015-03-23 00:00:00" text="倒计时" style="1" name="样式一" width="200" height="200" path="ftpFile/plugXmlFile/img/weather/weather_style2.png">
+	 	</count>
+	 </plug>
+	 <!-- 班级名称 -->
+	 <plug height="200" id="plug1" left="0" name="班级名称" top="0" type="101" width="260" >
+	 	<classname style="1" name="样式一" width="200" height="200" path="ftpFile/plugXmlFile/img/weather/weather_style2.png">
+	 	</classname>
+	 </plug>
+	 <!-- 班级信息 -->
+	 <plug height="200" id="plug1" left="0" name="班级信息" top="0" type="102" width="260" >
+	 	<classinfo style="1" name="样式一" width="200" height="200" path="ftpFile/plugXmlFile/img/weather/weather_style2.png">
+	 	</classinfo>
+	 </plug>
+	 <!-- 作文 -->
+	 <plug height="200" id="plug1" left="0" name="作文" top="0" type="103" width="260" >
+	 	<article style="1" name="样式一" width="200" height="200" path="ftpFile/plugXmlFile/img/weather/weather_style2.png">
+	 	</article>
+	 </plug>
+	
+	
+	
+	<!-- 天气预报 -->
+	<plug elemlife="" height="160" id="plug1" left="498" name="天气预报"
+		top="418" type="6" width="260" zIndex="5000">
+		<weather height="160" name="样式二"
+			path="ftpFile/plugXmlFile/img/weather/weather_style2.png" style="2"
+			width="260">
+			<item color="#1fa7d9" content="北京" font="微软雅黑" fontsize="24"
+				left="20" top="20" type="1" />
+			<item color="#1fa7d9" content="无持续风向微风" font="微软雅黑" fontsize="18"
+				left="20" top="55" type="4" />
+			<item color="#dd811d" content="晴" font="微软雅黑" fontsize="24"
+				left="20" top="80" type="3" />
+			<item color="#dd811d" content="9℃/23℃" font="微软雅黑" fontsize="18"
+				left="20" top="115" type="2" />
+			<pic height="90" left="170" src="a_0.gif" top="35" width="90" />
+		</weather>
+	</plug>
+	<!-- 时钟 -->
+	<plug elemlife="" height="50" id="plug2" left="268" name="时钟" top="408"
+		type="5" width="300" zIndex="5002">
+		<timepiece clockstyle="2" height="50" name="样式二"
+			path="ftpFile/plugXmlFile/img/time/time_style2.png" style="1" width="300">
+			<clock bgcolor="" fgcolor="#848484" font="楷体" format="yyyy/MM/dd HH:mm:ss"
+				height="50" left="15" size="25" top="70" width="300" />
+		</timepiece>
+	</plug>
+	<!--互动相册  -->
+	<plug elemlife="" height="540" id="plug3" left="0" name="互动相册"
+		top="0" type="1" width="960" zIndex="5004">
+		<album style="1">
+			<element elemTempId="selected_elem_10" id="279" life="10"
+				name="u=1778081889,4055402992&amp;fm=21&amp;gp=0.jpg" resolution="329x220"
+				src="ftpFile\processed\e61671d4d4b4f652e707a61fe60b7e6a.jpg"
+				thumbnailUrl="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg"
+				type="3" />
+		</album>
+	</plug>
+	<!--互动office  -->
+	<plug elemlife="" height="540" id="plug4" left="0" name="互动office"
+		top="0" type="7" width="960" zIndex="5006">
+		<album style="7">
+			<element elemTempId="selected_elem_11" id="37" life="10"
+				name="DMB精简版系统操作手册（新）.pdf" resolution=""
+				src="ftpFile\processed\47_ae0a978345af9cb0ce1da4a4d1050342.xps"
+				thumbnailUrl="ftpFile\processed\imgae0a978345af9cb0ce1da4a4d1050342.jpg"
+				type="7" />
+		</album>
+	</plug>
+	<!--互动视频-->
+	<plug elemlife="" height="540" id="plug5" left="0" name="互动视频"
+		top="5" type="8" width="960" zIndex="5008">
+		<touchvideo style="1">
+			<element elemTempId="selected_elem_12" id="51" life="23"
+				name="avi视频.mov" resolution="1920x540"
+				src="ftpFile\processed\ca064a69b3be173d58de46c395d7010c.mov"
+				thumbnailUrl="ftpFile\processed\imgca064a69b3be173d58de46c395d7010c.gif"
+				type="4" />
+		</touchvideo>
+	</plug>
+	
+	<!--详情-->
+	<plug elemlife="" height="540" id="plug5" left="0" name="详情"
+		top="5" type="10" width="960" zIndex="5008" >
+		<detail left="0" top="0" width="960" height="1080">
+			<element elemTempId="selected_elem_10" id="279" life="10"
+				name="1778081889" resolution="329x220"
+				src="ftpFile\processed\e61671d4d4b4f652e707a61fe60b7e6a.jpg"
+				thumbnailUrl="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg"
+				type="3" />
+			<element elemTempId="selected_elem_10" id="279" life="10"
+			name="u=1778081889,4055402992&amp;fm=21&amp;gp=0.jpg" resolution="329x220"
+			src="ftpFile\processed\e61671d4d4b4f652e707a61fe60b7e6a.jpg"
+			thumbnailUrl="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg"
+			type="3" />
+		</detail>
+	</plug>
+	
+		<!--按钮组-->
+	<plug elemlife="" height="540" id="plug5" left="0" name="按钮组" 
+		top="5" type="201" width="960" zIndex="5008">
+		<buttongroup left="0" top="5" width="960" height="540" rownum="3" columnnum="3" buttoncount="12">
+			<element num="1" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮1" sceneid="1"/>
+			<element num="2" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮2" sceneid="2"/>
+			<element num="3" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮3" sceneid="3"/>
+			<element num="4" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮4" sceneid="4"/>
+			<element num="5" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮5" sceneid="5"/>
+			<element num="6" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮6" sceneid="6"/>
+			<element num="7" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮7" sceneid="7"/>
+			<element num="8" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮8" sceneid="8"/>
+			<element num="9" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮9" sceneid="9"/>
+			<element num="10" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮10" sceneid="10"/>
+			<element num="11" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮11" sceneid="11"/>
+			<element num="12" src="ftpFile\processed\imge61671d4d4b4f652e707a61fe60b7e6a.jpg" text="按钮12" sceneid="12"/>
+		</buttongroup>
+	</plug>
+</plugs>

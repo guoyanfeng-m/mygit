@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.terminal.TerminalDao">  
+    <insert id="insertTerminal" parameterType="beans.terminal.TerminalBean">  
+        insert into terminal(terminal_id,terminal_name,ip,mac,audit_status,create_time,update_time,creator_id,
+        deleted,is_verify) values(#{terminal_id},#{terminal_name},#{ip},#{mac},
+        #{audit_status},#{create_time},#{update_time},#{creator_id},#{deleted},#{is_verify})  ; 
+        <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="terminal_id" >
+        SELECT LAST_INSERT_ID() AS terminal_id
+      </selectKey>
+        
+    </insert>  
+    
+    <select id="queryBdTerminal" resultType="beans.terminal.TerminalViewBean"  
+        parameterType="map">  
+        select 
+        distinct
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.userName,
+		b.groupId,
+		c.GroupName
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+         where 1=1 
+         and a.is_verify=0
+         and a.deleted!=1 order by a.update_time  LIMIT #{offset},#{limit};
+    </select>  
+    
+    <select id="queryBdTerminalCount" resultType="java.lang.Integer" >  
+        select 
+        count(*)
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        where 1=1 
+        and a.is_verify = 0
+        and a.deleted!=1 order by a.update_time ;
+    </select>  
+    
+    <select id="queryTerminal" resultType="beans.terminal.TerminalViewBean"   parameterType="map">  
+        select 
+		        distinct
+		        a.terminal_id,
+				a.terminal_name,
+				a.ip,
+				a.mac,
+				a.audit_status,
+				a.create_time,
+				a.update_time,
+				d.realname as userName,
+				GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+				GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        <where>
+	        <if test="terminalBean.terminal_id != null and terminalBean.terminal_id != ''"> and a.terminal_id=#{terminalBean.terminal_id}  </if> 
+	        <if test="terminalBean.terminal_name != null and terminalBean.terminal_name != ''"> and a.terminal_name like CONCAT('%','${terminalBean.terminal_name}','%' )  </if> 
+	        <if test="terminalBean.mac != null and terminalBean.mac != ''"> and a.mac=#{terminalBean.mac}  </if> 
+	        <if test="terminalBean.groupId != null and terminalBean.groupId != ''"> and b.groupId=#{terminalBean.groupId}  </if> 
+	         and a.is_verify=#{terminalBean.is_verify}
+	         and a.deleted=0 
+	         and e.role_id in 
+	         <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+	            #{userlist}
+	        </foreach>
+        </where>
+        GROUP BY a.terminal_id  ORDER  BY a.update_time  LIMIT #{offset},#{limit};
+    </select>  
+    
+    
+    <select id="queryTerminalCount" resultType="java.lang.Integer"   parameterType="map"> 
+        select count(*) from ( 
+        select 
+        		distinct
+		        a.terminal_id,
+				a.terminal_name,
+				a.ip,
+				a.mac,
+				a.audit_status,
+				a.create_time,
+				a.update_time,
+				d.realname as userName,
+				GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+				GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        <where>
+	         <if test="terminalBean.terminal_id != null and terminalBean.terminal_id != ''"> 
+	         a.terminal_id=#{terminalBean.terminal_id}  
+	         </if> 
+	         <if test="terminalBean.terminal_name != null and terminalBean.terminal_name != ''"> 
+	         and a.terminal_name like CONCAT('%','${terminalBean.terminal_name}','%' )  
+	         </if> 
+	         <if test="terminalBean.mac != null and terminalBean.mac != ''"> 
+	         and a.mac=#{terminalBean.mac} 
+	         </if> 
+	         <if test="terminalBean.groupId != null and terminalBean.groupId != ''"> 
+	         and b.groupId=#{terminalBean.groupId}  
+	         </if> 
+	         and a.is_verify=#{terminalBean.is_verify}
+	         and a.deleted=0
+	         and e.role_id in 
+	         <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+	            #{userlist}
+	         </foreach>
+        </where> 
+         GROUP BY a.terminal_id  ORDER  BY a.update_time
+         ) as co;
+    </select>  
+    
+    
+     <select id="queryTerminalWithoutPage" resultType="beans.terminal.TerminalViewBean"  
+        parameterType="beans.terminal.TerminalBean">  
+        select 
+        distinct
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.userName,
+		b.groupId,
+		c.GroupName
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        where 1=1 
+        <if test="terminal_id != null and terminal_id != ''"> and a.terminal_id=#{terminal_id}  </if> 
+        <if test="terminal_name != null and terminal_name != ''"> and a.terminal_name like CONCAT('%','${terminal_name}','%' )  </if> 
+        <if test="mac != null and mac != ''"> and a.mac=#{mac}  </if> 
+        <if test="groupId != null and groupId != ''"> and b.groupId=#{groupId}  </if> 
+         and a.audit_status = 1	
+         and a.deleted=0 order by a.update_time ;
+    </select>  
+    
+    
+    <select id="queryTerminalWithoutPageById" resultType="beans.terminal.TerminalViewBean"  
+        parameterType="beans.terminal.TerminalBean">  
+        select 
+        distinct
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.userName,
+		b.groupId,
+		c.GroupName
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        where 1=1 
+        <if test="terminal_id != null and terminal_id != ''"> and a.terminal_id=#{terminal_id}  </if> 
+        <if test="terminal_name != null and terminal_name != ''"> and a.terminal_name like CONCAT('%','${terminal_name}','%' )  </if> 
+        <if test="mac != null and mac != ''"> and a.mac=#{mac}  </if> 
+        <if test="groupId != null and groupId != ''"> and b.groupId=#{groupId}  </if> 
+        ;
+    </select>  
+    
+    <select id="queryTerminalMac" resultType="java.lang.String"  
+        parameterType="beans.terminal.TerminalBean">  
+        select 
+        mac
+		from terminal
+        where 1=1 
+        <if test="terminal_id != null and terminal_id != ''"> and terminal_id!=#{terminal_id}  </if> 
+        <if test="mac != null and mac != ''"> and mac=#{mac}  </if> 
+         and deleted=0 and audit_status != 2 and is_verify = 1;
+    </select>  
+    
+    <select id="queryTerminalMacIp" resultType="java.lang.String"  
+        parameterType="beans.terminal.TerminalBean">  
+        select 
+        mac,ip
+		from terminal
+        where 1=1 
+        <if test="terminal_id != null and terminal_id != ''"> and terminal_id!=#{terminal_id}  </if> 
+        <if test="mac != null and mac != ''"> and mac=#{mac}  </if> 
+        <if test="ip != null and ip != ''"> and ip=#{ip}  </if> 
+         and deleted=0 and is_verify = 0;
+    </select>  
+    
+    <select id="queryTerminalName" resultType="java.lang.String"  
+        parameterType="beans.terminal.TerminalBean">  
+        select 
+        terminal_name
+		from terminal
+        where 1=1 
+        <if test="terminal_id != null and terminal_id != ''"> and terminal_id!=#{terminal_id}  </if> 
+        <if test="mac != null and mac != ''"> and mac=#{mac}  </if> 
+         and deleted=0 and is_verify = 1;
+    </select>
+    
+     <select id="queryTerminalByGroupId" resultType="beans.terminal.TerminalViewBean">  
+     select 
+        distinct
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.realname as userName,
+	    GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+        GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+     from terminal a
+     left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+     left join terminalgroup c on c.t_id = b.GroupID
+     left join user d on d.user_id = a.creator_id
+     left join role_terminal e on e.terminal_id = a.terminal_id
+     <where>
+         a.is_verify=1
+         and a.deleted=0 
+         and e.role_id in 
+         <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+            #{userlist}
+        </foreach>
+         and b.groupId in
+        <foreach collection="array" item="groupId" index="index" open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+     </where> 
+     GROUP BY a.terminal_id  ORDER  BY a.update_time  LIMIT #{offset},#{limit};
+    </select> 
+    
+    
+     <select id="queryTerminalTotleByGroupId" resultType="java.lang.Integer">  
+     select count(*) from (
+       select 
+        distinct
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.userName,
+		GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+		GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        <where>
+         and a.is_verify=1
+         and e.role_id in 
+         <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+            #{userlist}
+         </foreach>
+         and b.groupId in
+         <foreach collection="array" item="groupId" index="index"  open="(" close=")" separator=",">
+            #{groupId}
+         </foreach>
+         and a.deleted=0
+         </where> 
+         GROUP BY a.terminal_id  ORDER  BY a.update_time
+         ) as co
+    </select> 
+    
+    <!-- search start -->
+    
+    <select id="queryTerminalNameByGroupId" resultType="beans.terminal.TerminalViewBean">  
+     select 
+	        distinct
+	        a.terminal_id,
+			a.terminal_name,
+			a.ip,
+			a.mac,
+			a.audit_status,
+			a.create_time,
+			a.update_time,
+			d.userName,
+			GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+	        GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+     from terminal a
+     left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+     left join terminalgroup c on c.t_id = b.GroupID
+     left join user d on d.user_id = a.creator_id
+     left join role_terminal e on e.terminal_id = a.terminal_id
+     <where>
+        and a.terminal_name like CONCAT('%','${terminal_name}','%' ) 
+        and a.is_verify=1
+        and a.deleted=0 
+        and e.role_id in 
+        <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+            #{userlist}
+        </foreach>
+        and b.groupId in
+        <foreach collection="array" item="groupId" index="index" open="(" close=")" separator=",">
+            #{groupId}
+        </foreach>
+     </where>
+         GROUP BY a.terminal_id  ORDER  BY a.update_time  LIMIT #{offset},#{limit};
+    </select> 
+    
+    
+     <select id="queryTerminalNameTotleByGroupId" resultType="java.lang.Integer">  
+     select count(*) from (
+        select 
+	        distinct
+	        a.terminal_id,
+			a.terminal_name,
+			a.ip,
+			a.mac,
+			a.audit_status,
+			a.create_time,
+			a.update_time,
+			d.userName,
+			GROUP_CONCAT(DISTINCT  b.groupId) AS groupIds,
+	        GROUP_CONCAT(DISTINCT  c.GroupName) AS GroupNames
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        left join role_terminal e on e.terminal_id = a.terminal_id
+        <where>
+	          and a.terminal_name like CONCAT('%','${terminal_name}','%' )
+	          and a.is_verify=1
+	          and a.deleted=0
+	          and e.role_id in 
+	         <foreach collection="list" item="userlist" index="index" open="(" close=")" separator=",">
+	            #{userlist}
+	         </foreach>
+	         and b.groupId in
+	        <foreach collection="array" item="groupId" index="index" open="(" close=")" separator=",">
+	            #{groupId}
+	        </foreach>
+         </where> 
+         GROUP BY a.terminal_id  ORDER  BY a.update_time
+         ) as co
+    </select> 
+    <!-- search end -->
+    <select id="queryTerminalByGroupIdWithoutPage" resultType="beans.terminal.TerminalViewBean">  
+        select 
+	        a.terminal_id,
+			a.terminal_name,
+			a.ip,
+			a.mac,
+			a.audit_status,
+			a.create_time,
+			a.update_time,
+			d.userName,
+			b.groupId,
+			c.GroupName
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        where 
+	        a.deleted=0 
+	        and a.is_verify = 1 
+	        and a.audit_status = 1	
+	        and b.groupId in
+	        <foreach collection="list" item="groupId" index="index" open="(" close=")" separator=",">
+	            #{groupId}
+	        </foreach>
+         order by a.update_time;
+    </select> 
+    
+    <select id="queryTerminalByTerminalIds" resultType="beans.terminal.TerminalViewBean">  
+        select 
+        a.terminal_id,
+		a.terminal_name,
+		a.ip,
+		a.mac,
+		a.audit_status,
+		a.create_time,
+		a.update_time,
+		d.userName,
+		b.groupId,
+		c.GroupName
+        from terminal a
+        left join terminal_terminalgroup b on a.terminal_id = b.terminalID
+        left join terminalgroup c on c.t_id = b.GroupID
+        left join user d on d.user_id = a.creator_id
+        where a.deleted=0 and a.is_verify = 1
+         <if test="list != null">
+         and a.terminal_id in       
+	        <foreach collection="list" item="terminalId" index="index"
+	            open="(" close=")" separator=",">
+	            #{terminalId}
+	        </foreach>
+	     </if>   
+    </select>     
+       
+   <delete id="deleteTerminalByTerminalId" parameterType="beans.terminal.TerminalBean" >  
+        delete from terminal 
+        <where>
+	        <if test="terminal_id != null and terminal_id != 0">
+	            terminal_id = #{terminal_id}
+	        </if>
+	        <if test="terminalIdList!= null">
+	            and terminal_id in 
+	             <foreach collection="terminalIdList" item="item" index="index" open="(" close=")" separator=",">
+	                 #{item}
+	             </foreach>
+	        </if>
+        </where>
+    </delete>
+       
+   <delete id="deleteTerminalByIpMac" parameterType="beans.terminal.TerminalBean"  
+        flushCache="true">  
+        delete from terminal 
+        where ip = #{ip} and mac=#{mac} and is_verify =0;
+       </delete>
+       
+      
+       
+     
+       <update id="updateTerminalByTerminalId" parameterType="beans.terminal.TerminalBean"
+		flushCache="true">
+		update terminal
+		<set>
+		<if test="terminal_name != null">
+		terminal_name = #{terminal_name},
+		</if>
+		<if test="ip != null">
+		ip = #{ip},
+		</if>
+		<if test="mac != null">
+		mac = #{mac},
+		</if>
+		<if test="audit_status != null">
+		audit_status = #{audit_status},
+		</if>
+		<if test="deleted != null">
+		deleted = #{deleted},
+		</if>
+		<if test="is_verify != null">
+		is_verify = #{is_verify}, 
+		</if>
+		<if test="create_time != null">
+		create_time = #{create_time}, 
+		</if>
+		<if test="creator_id != null">
+		creator_id = #{creator_id}, 
+		</if>
+		update_time = null
+		</set>
+		where terminal_id = #{terminal_id}
+	   </update>
+    
+       <select id="queryTree" resultType="beans.terminal.TerminalGroupBean"
+		parameterType="beans.terminal.TerminalGroupBean" flushCache="true">
+		select 
+        *
+        from terminalgroup 
+        where 1 = 1 
+        <if test="t_id != null and t_id != ''"> and t_id=#{t_id}  </if> 
+        <if test="parentId != null and parentId != ''"> and parentId=#{parentId}  </if> 
+        <if test="IsDeleted != null and IsDeleted != ''"> and IsDeleted=#{IsDeleted}</if> 
+        ;
+		
+	</select>
+	
+	<select id="queryTerminalMacById" resultType="java.lang.String">  
+        select 
+        mac
+		from terminal
+        <if test="list.size() > 0">  
+		 where terminal_id in
+			<foreach collection="list" item="terminalidlist" index="index" open="("
+				close=")" separator=",">
+				#{terminalidlist}
+			</foreach>
+		</if> 
+    </select>
+    
+    <select id="queryTerminalPublishStatus" resultType="beans.program.view.ProgramTerminalView">
+		SELECT t.terminal_name,p.schedulelevel,pt.terminal_id,ttg.GroupID as group_id,p.type as type,
+			tg.GroupName as group_name,p.program_id,p.name as program_name,t.mac FROM program p
+	    	LEFT JOIN program_terminal pt ON p.program_id = pt.program_id
+	    	LEFT JOIN terminal_terminalgroup ttg ON pt.terminal_id = ttg.TerminalID
+	    	LEFT JOIN terminalgroup tg ON ttg.GroupID = tg.t_id 
+	    	LEFT JOIN terminal t ON t.terminal_id = ttg.TerminalID 
+	    	WHERE pt.terminal_id != "" and t.mac in
+	    	<foreach collection="array" item="macs" index="index" open="("
+				close=")" separator=",">
+				#{macs}
+			</foreach>
+    </select> 
+    
+    <select id="getTerminalStatus" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select ts.TerminalStatus from terminal t left join terminal_status ts on ts.terminal_id = t.terminal_id 
+		where t.mac in
+		<foreach collection="list" item="mac" index="index" open="("
+				close=")" separator=",">
+				#{mac}
+			</foreach>
+	</select>
+	
+	<!-- 通过用户id查找用户角色下的终端组 (终端组移动) -->
+	<select id="selectTerminalTreeByUserId" parameterType="Integer" resultType="beans.terminal.TerminalGroupBean" flushCache="true">
+		SELECT 
+        tg.*
+        FROM `user_role` ur LEFT JOIN `role_terminalgroup` rtg ON ur.`role_id` = rtg.`role_id`
+        RIGHT JOIN `terminalgroup` tg ON rtg.`terminalgroup_id` = tg.`t_id`
+        <where>
+	        <if test="userId != null and userId != ''">
+	        	ur.`user_id` = #{userId}
+	        </if>
+        </where>
+        GROUP BY tg.`t_id`
+	</select>
+	
+	<!-- 通过终端组查询有此终端组权限的角色 -->
+	<select id="selectRoleIdByTerminalGroup" parameterType="List" resultType="Integer">
+		SELECT 
+			role_id 
+		FROM 
+			`role_terminalgroup` 
+		WHERE 
+			terminalgroup_id IN
+         <foreach collection="terminalGroup" item="item" index="index" separator=",">
+             (
+		         #{item.role_id},
+		         #{item.terminal_id}
+	         ) 
+         </foreach>
+	</select> 
+</mapper>    

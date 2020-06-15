@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<email>
+<type>
+	<emailType>126.com</emailType>
+	<emailHost>smtp.126.com</emailHost>
+</type>
+<type>
+	<emailType>sina.com</emailType>
+	<emailHost>smtp.sina.com.cn</emailHost>
+</type>
+<type>
+	<emailType>sohu.com</emailType>
+	<emailHost>smtp.sohu.com</emailHost>
+</type>
+<type>
+	<emailType>139.com</emailType>
+	<emailHost>smtp.139.com</emailHost>
+</type>
+<type>
+	<emailType>163.com</emailType>
+	<emailHost>smtp.163.com</emailHost>
+</type>
+<type>
+	<emailType>qq.com</emailType>
+	<emailHost>smtp.qq.com</emailHost>
+</type>
+<type>
+	<emailType>yahoo.com.cn</emailType>
+	<emailHost>smtp.mail.yahoo.com.cn</emailHost>
+</type>
+</email>

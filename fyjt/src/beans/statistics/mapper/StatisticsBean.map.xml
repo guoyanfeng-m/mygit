@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.statistics.StatisticsDao">  
+ 
+        <!-- 查询 totle-->
+        <select id="queryTotal" resultType="java.lang.Integer" parameterType="map">
+              SELECT COUNT(*) FROM statistics_normal    
+          <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminalName like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+           </where>
+        </select>
+   
+    <!-- 分页查询,素材信息 -->
+     <select id="queryPage" resultType="beans.statistics.StatisticsBean" parameterType="map">
+         SELECT t_id,terminalid,terminalName,programName,sceneName,regionName,elemName,elemType,elemplayTime,elemstartTime,elemendTime FROM statistics_normal
+        <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminalName like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+             and 1=1 order by elemstartTime desc LIMIT #{offset},#{limit}
+          </where>
+         </select>
+        
+      <!-- 统计查询 ，统计信息-->
+      <select id="querytongji" resultType="beans.statistics.StatisticsViewBean" parameterType="map">
+         SELECT t_id,elemName,elemType,SUM(elemplayTime) totaltime,COUNT(t_id) counts, elemstartTime,elemendTime FROM statistics_normal
+         <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+             and 1=1 group by elemName,elemType  LIMIT #{offset},#{limit}
+          </where>
+        </select>
+        
+            <!-- 统计查询total -->
+     <select id="querytongjiTotal" resultType="beans.statistics.StatisticsViewBean" parameterType="map">
+        SELECT elemName,elemType,SUM(elemplayTime),COUNT(t_id),elemstartTime,elemendTime FROM statistics_normal
+       <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+             and 1=1 group by elemName,elemType
+          </where>
+        </select>
+        
+        <!-- 删除 -->
+        <delete id="statisticsDel" parameterType="java.lang.Integer">
+           delete from statistics_normal where t_id in
+           <foreach collection="array" index="index" item="t_id" open="(" separator="," close=")">
+           #{t_id}
+           </foreach>
+        </delete>
+        
+        <!-- 导出素材信息,一次性全部导出 -->
+        <select id="exportEleData" resultType="beans.statistics.StatisticsBean" parameterType="map">
+           SELECT terminalName,programName,sceneName,regionName,elemName,elemType,elemplayTime,elemstartTime,elemendTime  from statistics_normal
+         <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminalName like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+       </where>
+           LIMIT #{offset},#{limit}
+      </select>
+         <!-- 导出素材信息,分批导出 -->
+     <select id="importEleExcel" resultType="beans.statistics.StatisticsBean" parameterType="map">
+           SELECT terminalName,programName,sceneName,regionName,elemName,elemType,elemplayTime,elemstartTime,elemendTime  from statistics_normal
+        <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminalName like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+             and 1=1 LIMIT #{offset},#{limit}
+          </where>
+         </select>
+       <!-- 导出统计信息 -->
+        <select id="exportStatisticsTJData" resultType="beans.statistics.StatisticsViewBean" parameterType="map">
+          SELECT t_id,elemName,elemType,SUM(elemplayTime) totaltime,COUNT(t_id) counts FROM statistics_normal
+         <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+             and 1=1 group by elemName,elemType 
+           </where>
+         </select>
+        
+        <!-- 分部查询素材信息 -->
+        <select id="queryStatisticsPartCount" resultType="java.lang.Integer" parameterType="map">
+              SELECT COUNT(*) FROM statistics_normal    
+          <where>
+            <if test="elemName != null and elemName != '' ">
+              and elemName like concat(concat('%',#{elemName}),'%')
+            </if>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminalName like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="elemstartTime != null and elemstartTime != '' ">
+              and elemstartTime &gt;= #{elemstartTime}
+            </if>
+            <if test="elemendTime != null and elemendTime != '' ">
+              and elemendTime &lt;= #{elemendTime}
+            </if>
+       </where>
+   </select>
+      
+       <!--自动删除统计--> 
+      <delete id="delstatis" parameterType="java.lang.Integer">
+         delete from statistics_normal where elemstartTime &lt;= date_sub(now(),interval #{statisticsDelete} day)
+      </delete>
+       <!-- 手动删除统计  -->
+      <delete id="delStatistics" parameterType="map">
+         delete from statistics_normal where elemstartTime &gt;=#{elemstartTime} and elemendTime &lt;=#{elemendTime} 
+      </delete>
+</mapper>    

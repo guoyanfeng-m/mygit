@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.proStatistics.ProStatisticsDao">  
+	<!-- 查询count -->
+	<select id="selectFileNameCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM pro_statistics WHERE file_name = #{fileName}
+	</select>
+ 	<!-- 添加数据 -->
+ 	<insert id="insertProStatistics" parameterType="beans.proStatistics.ProStatisticsBean">
+ 		insert into pro_statistics(
+ 			select null,terminal_id,terminal_name,
+ 			#{programName},#{programType},#{programLevel},#{totalTime},#{startTime},#{endTime},#{fileName},#{fileType}
+ 			from terminal where mac = #{terminalMac})
+ 		 <selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="proId" >
+       	 SELECT LAST_INSERT_ID() AS program_id
+     	 </selectKey>
+ 	</insert>
+ 	 <!-- 查询 total-->
+        <select id="queryTotal" resultType="java.lang.Integer" parameterType="map">
+              SELECT COUNT(*) FROM pro_statistics    
+          <where>
+            <if test="terminalName != null and terminalName != '' ">
+              and terminal_name like concat(concat('%',#{terminalName}),'%')
+            </if>
+            <if test="programName != null and programName != '' ">
+              and program_name like concat(concat('%',#{programName}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and start_time &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and end_time &lt;= #{endtime}
+            </if>
+           </where>
+        </select>
+ 	<!-- 查询所有 -->
+ 	<select id="queryProgramlog" resultType="beans.proStatistics.ProStatisticsBean" parameterType="map">
+ 		select 
+ 			pro_id as proId,
+ 			terminal_name as terminalName,
+ 			program_name as programName,
+ 			program_type as programType,
+ 			program_level as programLevel,
+ 			total_time as totalTime,
+ 			start_time as startTime,
+ 			end_time as endTime
+ 			from pro_statistics
+		<where>
+          <if test="terminalName != null and terminalName != '' ">
+            and terminal_name like concat(concat('%',#{terminalName}),'%')
+          </if>
+          <if test="programName != null and programName != '' ">
+            and program_name like concat(concat('%',#{programName}),'%')
+          </if>
+          <if test="starttime != null and starttime != '' ">
+            and start_time &gt;= #{starttime}
+          </if>
+          <if test="endtime != null and endtime != '' ">
+            and end_time &lt;= #{endtime}
+          </if>
+           and 1=1 order by start_time desc LIMIT #{offset},#{limit}
+        </where>
+ 	</select>
+	<!-- 查询导出日志数据 -->
+	<select id="exportProStatisticsTJData" resultType="beans.proStatistics.ProStatisticsBean" parameterType="map">
+ 		select 
+ 			pro_id as proId,
+ 			terminal_name as terminalName,
+ 			program_name as programName,
+ 			program_type as programType,
+ 			program_level as programLevel,
+ 			total_time as totalTime,
+ 			start_time as startTime,
+ 			end_time as endTime
+ 			from pro_statistics
+		<where>
+          <if test="terminalName != null and terminalName != '' ">
+            and terminal_name like concat(concat('%',#{terminalName}),'%')
+          </if>
+          <if test="programName != null and programName != '' ">
+            and program_name like concat(concat('%',#{programName}),'%')
+          </if>
+          <if test="starttime != null and starttime != '' ">
+            and start_time &gt;= #{starttime}
+          </if>
+          <if test="endtime != null and endtime != '' ">
+            and end_time &lt;= #{endtime}
+          </if>
+           and 1=1 order by start_time desc
+        </where>
+ 	</select>
+</mapper>    

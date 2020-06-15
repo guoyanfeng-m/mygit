@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.statistics.StatisticsButtonDao">  
+ 
+        <!-- 查询 totle-->
+        <select id="queryTotal" resultType="java.lang.Integer" parameterType="map">
+              SELECT COUNT(*) FROM statistics_button   
+          <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonName != null and buttonName != '' ">
+              and buttonName like concat(concat('%',#{buttonName}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+           </where>
+        </select>
+   
+    <!-- 触摸信息-->
+     <select id="queryPage" resultType="beans.statistics.StatisticsButtonBean" parameterType="map">
+         SELECT terminalName,programName,sceneNameofButton,buttonName,buttonType,sceneNameofJumpbutton,clickTime FROM statistics_button        <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonName != null and buttonName != '' ">
+              and buttonName like concat(concat('%',#{buttonName}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+             and 1=1 order by clickTime desc LIMIT #{offset},#{limit}
+          </where>
+         </select>
+          <!-- 触摸信息下载列表查询 -->
+        <select id="queryStatisticsButtonPartCount" resultType="java.lang.Integer" parameterType="map">
+              SELECT COUNT(*) FROM statistics_button    
+          <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+       </where>
+   </select>
+            <!-- 导出触摸信息,分批导出 -->
+     <select id="exportData" resultType="beans.statistics.StatisticsButtonBean" parameterType="map">
+         SELECT terminalid,terminalName,programName,sceneNameofButton,buttonName,buttonType,sceneNameofJumpbutton,clickTime FROM statistics_button     
+        <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+             and 1=1 LIMIT #{offset},#{limit}
+          </where>
+       </select>
+             <!-- 触摸统计 -->
+      <select id="queryCMtj" resultType="beans.statistics.StatisticsButtonView" parameterType="map">
+        SELECT COUNT(*) count,sceneNameofButton,sceneNameofJumpbutton,buttonName,buttonType ,clickTime FROM statistics_button 
+         <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+             and 1=1 group by sceneNameofButton,sceneNameofJumpbutton,buttonType order by count desc LIMIT #{offset},#{limit}
+          </where>
+        </select>
+        
+            <!-- 触摸统计total -->
+     <select id="queryCMTotal" resultType="beans.statistics.StatisticsButtonView" parameterType="map">
+        SELECT COUNT(*) count FROM statistics_button 
+         <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+            and 1=1 group by sceneNameofButton, sceneNameofJumpbutton,buttonType
+          </where>
+        </select>
+      <!-- 导出触摸统计信息导出 -->
+     <select id="exportCMExcel" resultType="beans.statistics.StatisticsButtonView" parameterType="map">
+         SELECT COUNT(*) count,sceneNameofButton,buttonName,buttonType,sceneNameofJumpbutton,clickTime FROM statistics_button     
+        <where>
+            <if test="sceneNameofButton != null and sceneNameofButton != '' ">
+              and sceneNameofButton like concat(concat('%',#{sceneNameofButton}),'%')
+            </if>
+            <if test="sceneNameofJumpbutton != null and sceneNameofJumpbutton != '' ">
+              and sceneNameofJumpbutton like concat(concat('%',#{sceneNameofJumpbutton}),'%')
+            </if>
+            <if test="buttonType != null and buttonType != '' ">
+              and buttonType like concat(concat('%',#{buttonType}),'%')
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and clickTime &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and clickTime &lt;= #{endtime}
+            </if>
+           and 1=1 group by sceneNameofButton,sceneNameofJumpbutton,buttonType
+          </where>
+       </select>
+       <!--自动删除统计--> 
+      <delete id="delstatisButton" parameterType="java.lang.Integer">
+         delete from statistics_button where clickTime &lt;= date_sub(now(),interval #{statisticsDelete} day)
+      </delete>
+       <!-- 手动删除统计  -->
+      <delete id="delStatisticsButton" parameterType="map">
+         delete from statistics_button where clickTime &gt;=#{starttime} and clickTime &lt;=#{endtime} 
+      </delete>
+</mapper>    

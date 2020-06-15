@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.user.UserDao">  
+    <insert id="insertUser" parameterType="beans.user.UserBean">  
+        insert into user(user_id,username,realname,password,telephone,email,description,creator_id,deleted,update_time,create_time) 
+        values
+        (#{user_id},#{username},#{realname},#{password},#{telephone},#{email},#{description},#{creator_id},#{deleted},#{update_time},#{create_time})   
+   		<selectKey resultType="java.lang.Integer"  order="AFTER" keyProperty="user_id" >
+       	 SELECT LAST_INSERT_ID() AS user_id
+     	 </selectKey>
+    </insert>  
+    
+    
+    <insert id="insertUserRole" parameterType="beans.user.UserParametersBean">  
+       	insert into user_role(role_id,user_id)	values(#{role_id},#{user_id}) ; 
+    </insert>
+    
+    
+    
+    <select id="queryUser" resultType="beans.user.UserViewBean"  parameterType="map">
+           SELECT a.user_id , a.username, a.realname ,a.telephone,a.email,a.description,b.realname AS brealname,a.create_time 
+           FROM `user` a,`user` b 
+           WHERE a.creator_id=b.user_id AND a.deleted=0
+           <if test="creatorid != null and creatorid != ''">
+                 and b.user_id =#{creatorid}
+           </if>
+           <if test="userids.size()>0">
+           and b.user_id in
+             <foreach collection="userids" item="idlist" index="index"
+		            open="(" close=")" separator=",">
+		            #{idlist}
+             </foreach>
+           </if>
+        <if test="userBean.username != null and userBean.username != ''">and (a.username like CONCAT('%','${userBean.username}','%') or a.realname like CONCAT('%','${userBean.username}','%') ) </if> 
+        order by a.update_time desc  LIMIT #{offset},#{limit}
+    </select> 
+    
+    
+    <select id="queryUserID" resultType="Integer"  parameterType="map"> 
+		SELECT user_id FROM user WHERE deleted=0 and username=#{username}
+    </select>
+    
+    
+    
+    <select id="queryChildUserID" resultType="String"  parameterType="String"> 
+		SELECT user_id FROM `user` a WHERE a.creator_id=#{userid}
+    </select>
+    
+     <select id="queryParentUserID" resultType="java.lang.Integer"  parameterType="java.lang.Integer"> 
+		SELECT a.creator_id FROM `user` a WHERE a.user_id=#{userid}
+    </select>
+<!--    <select id="queryUserByUserName" resultType="Integer"  parameterType="String"> -->
+<!--		SELECT user_id FROM user WHERE deleted=0 and username=#{username}-->
+<!--    </select>-->
+    
+    <select id="queryRoleIDByUserID" resultType="java.lang.Integer"  parameterType="java.lang.Integer"> 
+		SELECT role_id  FROM user_role WHERE user_id=#{userid}      
+    </select>
+    
+    <select id="queryLoginUser" resultType="java.lang.Integer"  parameterType="map"> 
+		SELECT user_id FROM `user` WHERE  username=#{username} AND `password`=#{password} AND deleted=0    
+    </select>
+    
+    <select id="queryUserCount" resultType="java.lang.Integer" >
+    	 SELECT  count(1) as count 
+    	 FROM `user` a,`user` b 
+    	 WHERE 
+    	 a.creator_id=b.user_id   
+    	 AND a.deleted=0 
+        <if test="creatorid != null and creatorid != ''">    	
+    	  and b.user_id =#{creatorid}
+    	  </if>
+    	 <if test="userids.size()>0">
+    	 and b.user_id in
+    	 <foreach collection="userids" item="idlist" index="index"
+            open="(" close=")" separator=",">
+            #{idlist}
+        </foreach> 
+        </if>
+     	<if test="userBean.username != null and userBean.username != ''"> and (a.username like CONCAT('%','${userBean.username}','%') or a.realname like CONCAT('%','${userBean.username}','%') )</if> 
+        order by a.update_time desc 
+    </select>
+    
+    
+     <update id="updateUserByUserID" parameterType="beans.user.UserBean" >
+		update user
+		<set>
+			<if test="username != null">
+			 username = #{username},
+			</if>
+			<if test="realname != null">
+			 realname = #{realname},
+			</if>
+			<if test="password != null">
+			 password = #{password},
+			</if>
+			<if test="telephone != null">
+			 telephone = #{telephone},
+			</if>
+			<if test="email != null">
+			 email = #{email},
+			</if>
+			<if test="description != null">
+			 description = #{description},
+			</if>
+			<if test="deleted != null">
+			 deleted = #{deleted},
+			</if>
+			 update_time = null
+		</set>
+		where user_id = #{user_id}
+   </update>
+   
+   <update id="updateUserRoleByUserID" parameterType="beans.user.UserParametersBean">
+		update user_role
+		<set>
+		role_id = #{role_id},
+		</set>
+		where user_id = #{user_id}
+   </update>
+   <!-- 根据用户删除用户所关联的角色 -->
+   <update id="delRoleUser" parameterType="beans.user.UserParametersBean" >
+		delete from user_role where user_id = #{user_id}
+   </update>
+   <select id="queryUserIdsBySameRole" parameterType="map" resultType="java.lang.Integer" >
+        SELECT u.`user_id` FROM USER u LEFT JOIN user_role ur ON u.`user_id`=ur.`user_id` LEFT JOIN role r ON r.`role_id`=ur.`role_id` 
+        WHERE 
+        r.`role_id`=(SELECT r.`role_id`FROM role r LEFT JOIN user_role ur ON r.`role_id`=ur.`role_id` LEFT JOIN USER u ON u.`user_id`=ur.`user_id` WHERE u.`user_id`=#{userid} )
+   </select>
+   <!-- 查找相应用户的所有角色 -->
+   <select id="queryRoleIDByUserIDs" resultType="java.lang.Integer">
+      SELECT 
+             role_id  
+      FROM   user_role 
+      <where>
+            user_id  in 
+            <foreach collection="userlist" item="item" index="index" open="(" close=")" separator=","> 
+                 #{item}  
+            </foreach>
+      </where>  
+   </select>
+</mapper>    

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib>
+	<tlib-version>1.1</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>fyjttag</short-name>
+    
+    <tag>
+        <name>configTag</name>
+        <tag-class>tag.ConfigTag</tag-class>
+        <body-content>empty</body-content>
+        <description><![CDATA[读取配置]]></description>
+        <attribute>
+            <name>mark</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description><![CDATA[标示]]></description>
+        </attribute>
+    </tag>
+    
+     <!-- 新ui界面分页 -->
+    <tag>
+        <name>newPageTag</name>
+        <tag-class>tag.NewPageTag</tag-class>
+        <body-content>empty</body-content>
+        <description><![CDATA[分页查询结果]]></description>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[分页查询结果集的名称]]></description>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[CSS样式名称]]></description>
+        </attribute>
+        <attribute>
+            <name>formId</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[所属FORM元素id]]></description>
+        </attribute>
+    </tag>
+    
+     <tag>
+        <name>pageTag</name>
+        <tag-class>tag.PageTag</tag-class>
+        <body-content>empty</body-content>
+        <description><![CDATA[分页查询结果]]></description>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[分页查询结果集的名称]]></description>
+        </attribute>
+        <attribute>
+            <name>style</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[CSS样式名称]]></description>
+        </attribute>
+        <attribute>
+            <name>formId</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[所属FORM元素id]]></description>
+        </attribute>
+    </tag>
+    
+     <tag>
+        <name>dateTag</name>
+        <tag-class>tag.DateTag</tag-class>
+        <body-content>empty</body-content>
+        <description><![CDATA[时间格式化]]></description>
+        <attribute>
+            <name>date</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description><![CDATA[时间对象]]></description>
+        </attribute>
+        <attribute>
+            <name>pattern</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description><![CDATA[时间格式]]></description>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <name>stringTag</name>
+        <tag-class>tag.StringTag</tag-class>
+        <body-content>empty</body-content>
+        <description><![CDATA[字符串格式化]]></description>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <description><![CDATA[格式化对象]]></description>
+        </attribute>
+        <attribute>
+            <name>length</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description><![CDATA[格式化后的最长长度  不填写不截取]]></description>
+        </attribute>
+    </tag>
+    
+</taglib>

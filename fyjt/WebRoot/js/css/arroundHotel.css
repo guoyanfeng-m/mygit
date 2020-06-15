@@ -1,0 +1,152 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei";
+}
+.con{
+    width: 100%;
+    height: 1114px;
+    background: url(../images/hotel-bg.png) no-repeat   ;
+    overflow: hidden;
+}
+/*右侧部分*/
+.right{
+    margin:160px auto;
+    /*height: 848px;*/
+    width: 1192px;
+    background: #fff;
+    /*padding:0 10px;*/
+}
+.right >h2{
+    float: right;
+    height: 59px;
+    line-height: 60px;
+    font-size: 16px;
+    color:#939393;
+    font-weight: normal;
+    padding-right: 10px;
+}
+.right >h2 img{
+    vertical-align: middle;
+    margin-top: -3px;
+}
+/*选项卡部分*/
+.tabbedPanels .tabGroup {
+    padding-top: 10px;
+    box-sizing: border-box;
+    height: 60px;
+    line-height: 60px;
+    list-style: none;
+    margin: 0;
+    overflow: hidden;
+}
+
+.tabbedPanels .tab {
+    position: relative;
+    float: left;
+    font-size: 18px;
+    background:url(../images/blue.png) no-repeat;
+    line-height: 49px;
+    height: 49px;
+    width: 160px;
+    text-align: center;
+    padding-right: 18px;
+    box-sizing: border-box;
+    cursor: pointer;
+    color: #ffffff;
+    margin-right: -10px;
+}
+.tabbedPanels li.selectedTab::after {
+    content:'';
+    position:absolute;
+    left:150px;
+    top: 33px;
+    z-index: 1;
+    width:8px;
+    height: 16px;
+    background:url(../images/tran.png) no-repeat;
+}
+.tabbedPanels .first{
+    margin-left: 10px;
+}
+.tabbedPanels .contentGroup {
+    width: 1192px;
+    box-sizing: border-box;
+    background: #fff;
+    overflow: hidden;
+    clear: both;
+    border-top: 1px solid #e0e0e0;
+    padding:10px 10px 0;
+
+}
+
+.tabbedPanels .content {
+    width: 1192px;
+    display: none;
+}
+
+.tabbedPanels li.selectedTab {
+    background:url(../images/orange.png) no-repeat;
+    color: #5d0000;
+}
+
+.tabbedPanels div.selectedContent {
+    display: block;
+}
+
+.right ul.tabGroup{
+    overflow: hidden;
+}
+.right ul.con-ul li{
+    float: left;
+    margin: 0 30px 50px 0;
+}
+.right ul.con-ul li.last{
+    margin-right: 0;
+}
+.right  ul.con-ul li a{
+    display: block;
+    color:#000;
+    width: 272px;
+    height: 280px;
+    border:1px solid #e0e0e0;
+}
+.right  ul.con-ul li a p{
+    line-height: 20px;
+    padding-left: 22px;
+}
+.right  ul.con-ul>li>a p.hotel{
+    margin: 10px 0;
+}
+.right  ul.con-ul>li>a p em{
+    color:#ec6701;
+    padding-left: 5px;
+}
+/*分页*/
+.page ul{
+    list-style: none; /*去掉浏览器默认的列表样式*/
+}
+.page ul li{
+    font-size: 14px;
+    border:1px solid #ccc ;
+    display: inline-block;
+    height: 35px;
+    line-height: 35px;/*行高*/
+    padding: 0 13px;
+    background-color: #fff;
+    margin-right: 4px;
+    border-radius: 5px;
+}
+.page ul li span{
+    width: 0;
+    height: 0;
+    display: inline-block;
+    border:5px solid #000;
+    border-color: transparent black transparent transparent;
+    margin-right: 3px;
+}
+.page .other{
+    border-color:transparent transparent transparent #000;
+    margin-right: 0;
+    margin-left: 3px;
+}

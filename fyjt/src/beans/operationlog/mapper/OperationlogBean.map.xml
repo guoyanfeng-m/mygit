@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" > 
+<mapper namespace="dao.operationlog.OperationlogDao">  
+   <!-- 添加操作 -->
+   <insert id="insertOperationlog" parameterType="beans.operationlog.OperationlogBean">
+      insert into operationlog (userName,operationName,time,operationType,operationModel)
+      values(#{userName},#{operationName},#{time},#{operationType},#{operationModel})
+   </insert>
+      <!-- 查询 totle-->
+   <select id="queryTotal" resultType="java.lang.Integer" parameterType="map">
+      SELECT count(*) as count FROM operationlog a INNER JOIN operation b ON a.operationType=b.tid INNER JOIN module c ON a.operationModel=c.module_id inner join user d on a.userName=d.user_id
+      <where>
+            <if test="realname != null and realname != '' ">
+              and realname like concat(concat('%',#{realname}),'%')
+            </if>
+            <if test="operationName != null and operationName != '' ">
+              and operationName like concat(concat('%',#{operationName}),'%')
+            </if>
+            <if test="operationType != null and operationType != '' and operationType !=0 ">
+              and operationType= #{operationType}
+            </if>
+            <if test="operationModel != null and operationModel != '' and operationModel !=1">
+              and operationModel=#{operationModel}
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and time &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and time &lt;= #{endtime}
+            </if>
+       </where>
+   </select>
+    <!-- 分页查询 -->
+   <select id="queryOperationlog" resultType="beans.operationlog.OperationlogView" parameterType="map">
+  SELECT a.t_id,d.userName,d.realname,a.operationName,a.time,b.description,c.module_name FROM operationlog a INNER JOIN operation b ON a.operationType=b.tid INNER JOIN module c ON a.operationModel=c.module_id INNER JOIN USER d ON a.userName=d.user_id
+      <where>
+            <if test="realname != null and realname != '' ">
+              and d.realname like concat(concat('%',#{realname}),'%')
+            </if>
+            <if test="operationName != null and operationName != '' ">
+              and a.operationName like concat(concat('%',#{operationName}),'%')
+            </if>
+            <if test="operationType != null and operationType != '' and operationType !=0 ">
+              and a.operationType= #{operationType}
+            </if>
+            <if test="operationModel != null and operationModel != '' and operationModel !=1">
+              and a.operationModel=#{operationModel}
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and a.time &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and a.time &lt;= #{endtime}
+            </if><!--
+            and 1=1 order by a.time desc LIMIT #{offset},#{limit}
+       --></where>
+           order by a.time desc LIMIT #{offset},#{limit}<!-- 如果上面不加 and 1=1 sql就会报错，如果把order by a.time desc LIMIT #{offset},#{limit} 放到where后面就不报错了
+        --></select>
+        
+        <!-- 导出 -->
+        <select id="exportExcel" resultType="beans.operationlog.OperationlogView" parameterType="map">
+         SELECT a.t_id,d.userName,d.realname,a.operationName,a.time,b.description,c.module_name FROM operationlog a INNER JOIN operation b ON a.operationType=b.tid INNER JOIN module c ON a.operationModel=c.module_id INNER JOIN USER d ON a.userName=d.user_id
+      <where>
+            <if test="realname != null and realname != '' ">
+              and d.realname like concat(concat('%',#{realname}),'%')
+            </if>
+            <if test="operationName != null and operationName != '' ">
+              and a.operationName like concat(concat('%',#{operationName}),'%')
+            </if>
+            <if test="operationType != null and operationType != '' and operationType !=0">
+              and a.operationType= #{operationType}
+            </if>
+            <if test="operationModel != null and operationModel != '' and operationModel !=1 ">
+              and a.operationModel=#{operationModel}
+            </if>
+            <if test="starttime != null and starttime != '' ">
+              and a.time &gt;= #{starttime}
+            </if>
+            <if test="endtime != null and endtime != '' ">
+              and a.time &lt;= #{endtime}
+            </if>
+       </where>
+           order by a.time desc 
+      </select>
+      <!-- 自动删除操作日志 -->
+      <delete id="delOperationlog" parameterType="java.lang.Integer">
+         delete from operationlog where time &lt;= date_sub(now(),interval #{logDelete} day)
+      </delete>
+      <!-- 查询操作日志 -->
+      <select id="findOperationlog" parameterType="java.lang.Integer" resultType="beans.operationlog.OperationlogView">
+         select * from operationlog where time &lt;= date_sub(now(),interval #{logDelete} day)
+      </select>
+        <!-- 手动删除操作日志 -->
+      <delete id="delOperation" parameterType="map">
+         delete from operationlog where time between #{starttime} and #{endtime} 
+      </delete>
+</mapper>    

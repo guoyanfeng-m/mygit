@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.element.ElementDao">
+	<insert id="addElement" parameterType="beans.element.ElementBean">
+		insert into
+		element(elem_id,elem_name,elem_size,elem_path,type,resolution,time_length,thumbnailUrl,audit_status,MD5,description,creator_id,create_time,update_time,deleted)
+		values(#{elem_id},#{elem_name},#{elem_size},#{elem_path},
+		#{type},#{resolution},#{time_length},#{thumbnailUrl},#{audit_status},#{MD5},#{description},#{creator_id},#{create_time},#{update_time},#{deleted})
+		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="elem_id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<insert id="insertClassify">
+		insert into
+		element_type(type_id,type_name,parentId,description,creator_id,is_private)values(null,#{typeName},#{parseInt},null,#{creatorid},#{isprivate})
+	</insert>
+ <select id="sameNameTest" resultType="beans.element.ElementBean"  
+        parameterType="java.lang.String">  
+        select * from element where  elem_name = #{eleName}
+ </select>	
+	<insert id="addToClassify">
+		insert into
+		element_classify(type_id,element_id)values(#{typeId},#{elemId})
+	</insert>
+	<delete id="subMoveFromClassify" flushCache="true">
+		delete from
+		element_classify
+		where element_id = #{elemId} and type_id = #{typeId}
+	</delete>
+	<delete id="deleteClassifyElement" flushCache="true">
+		delete from
+		element_classify
+		where element_id =
+		#{parseInt}  
+    </delete>
+    <select id="queryElementIdByClassify" parameterType="java.lang.Integer" resultType="java.lang.String">
+    	SELECT element_id FROM `element_classify` WHERE type_id = #{typeid} 
+    </select>
+	<delete id="deleteTypeById" flushCache="true">
+		delete from element_type
+		where type_id =
+		#{typeid}  
+    </delete>
+	<delete id="deleteClassifyById" flushCache="true">
+		delete from
+		element_classify
+		where type_id =
+		#{typeid}  
+    </delete>
+	<select id="querySameToClassify" resultType="java.lang.Integer">
+		select count(1) from
+		element_classify where type_id = #{typeId} and
+		element_id = #{elemId}
+	</select>
+
+	<select id="queryElement" resultType="beans.element.ElementBean" parameterType="map">
+		
+		<if test="elementBean.type != null and elementBean.type != ''">
+			select distinct e.elem_id,
+			e.elem_name,e.elem_size,e.elem_path,e.type,e.resolution,e.time_length,e.thumbnailUrl,e.audit_status,
+			e.MD5,e.description,e.creator_id,e.create_time,e.update_time 
+			 from element_classify ec left join element e on ec.element_id=e.elem_id left join user u on u.user_id=e.creator_id WHERE ( ec.type_id = #{elementBean.type}
+		
+			<if test="elementBean.audit_status != -1"> and e.audit_status = #{elementBean.audit_status}</if>
+			<if test="elementBean.elem_name != null and elementBean.elem_name != ''"> and e.elem_name like
+				CONCAT('%','${elementBean.elem_name}','%' )   </if>
+			<if test="elementBean.type&lt;10">
+				<if test="creatorid != null and creatorid !=''">
+					and u.user_id =#{creatorid}
+				</if>
+				<if test="userids.size()>0">
+				   and  u.user_id in 
+				   <foreach collection="userids" item="idlist" index="index" open="(" close=")" separator=",">
+				   #{idlist}
+				   </foreach>
+				</if>
+			</if>
+			<if test="elementBean.type&gt;10">
+				<if test="creatorid != null and  creatorid !=''">
+					and e.creator_id =#{creatorid}
+				</if>
+			</if>
+			)
+			<if test="typeidList.size()>0">
+				   or ec.type_id  in 
+				   <foreach collection="typeidList" item="typeid" index="index" open="(" close=")" separator=",">
+				   #{typeid}
+				   </foreach>
+			</if> 	
+			order by e.update_time DESC,e.elem_name DESC LIMIT
+			#{offset},#{limit};
+		</if>
+		<if test="elementBean.type == null or elementBean.type == ''">
+			select * from element e WHERE 1=1
+			<if test="elementBean.audit_status != -1"> and e.audit_status = #{elementBean.audit_status}</if>
+			<if test="elementBean.elem_name != null and elementBean.elem_name != ''"> and e.elem_name like
+				CONCAT('%','${elementBean.elem_name}','%' )   </if>
+			<if test="elementPower == '1' or elementPower==1">
+				and e.creator_id in
+				<foreach collection="userids" item="idList" index="index"
+					open="(" close=")" separator=",">
+					#{idList} 
+				</foreach>
+			</if>
+			order by e.update_time DESC,e.elem_name DESC LIMIT
+			#{offset},#{limit};
+		</if>
+	</select>
+	<select id="queryTypeIdByIsprivate" resultType="java.lang.Integer">
+		select type_id from element_type where is_private = 1 and parentId = 3
+    </select>
+
+
+	<select id="exists" resultType="beans.element.ElementBean"
+		parameterType="beans.element.ElementBean">
+		select * from element where MD5 = #{MD5}
+    </select>
+	<select id="findEleByMD5" resultType="beans.element.ElementBean"
+		parameterType="java.lang.String">
+		select * from element where MD5 = #{md5}
+    </select>
+	<select id="queryClassify" resultType="beans.element.ElemtypeBean"
+		parameterType="beans.element.ElemtypeBean">
+		select * from element_type where 1=1 and parentId!=-1
+		<if test="parentId != null">
+			and parentId = #{parentId} 
+		</if>
+		<if test="creator_id!=1">
+		 and ( is_private = 1 or creator_id = #{creator_id} )
+		</if>
+	</select>
+	<select id="queryClassifyName" resultType="beans.element.ElemtypeBean"
+		parameterType="beans.element.ElemtypeBean">
+		select * from element_type where parentId = #{parentId}
+		<if test="creator_id != 1">
+			and creator_id = #{creator_id}
+		</if>
+	</select>
+	<select id="queryTerminalCount" resultType="java.lang.Integer">
+		<if test="elementBean.type != null and elementBean.type != ''">
+		 select count(*) from (
+			select distinct ec.element_id  from element_classify ec left join element e on ec.element_id=e.elem_id left join user u on u.user_id=e.creator_id WHERE (ec.type_id = #{elementBean.type}
+			<if test="elementBean.audit_status != -1"> and e.audit_status = #{elementBean.audit_status}</if>
+			<if test="elementBean.elem_name != null and elementBean.elem_name != ''"> and e.elem_name like
+				CONCAT('%','${elementBean.elem_name}','%' )   
+				</if>
+			<if test="elementBean.type&lt;10"><!-- <10的意思 -->
+				<if test="creatorid != null and  creatorid !=''">
+					and u.user_id =#{creatorid}
+				</if>
+				<if test="userids.size()>0">
+				    and u.user_id in 
+				      <foreach collection="userids" item="idlist" index="index" open="(" close=")" separator=",">
+				      #{idlist}
+				      </foreach>
+				</if>
+			</if>
+			<if test="elementBean.type&gt;10">
+				<if test="creatorid != null and  creatorid !=''">
+					and e.creator_id =#{creatorid}
+				</if>
+			</if>	
+			) 
+			<if test="typeidList.size()>0">
+				   or ec.type_id  in 
+				   <foreach collection="typeidList" item="typeid" index="index" open="(" close=")" separator=",">
+				   #{typeid}
+				   </foreach>
+			</if>	
+			order by e.create_time ) as co;
+		</if>
+		<!--
+		<if test="elementBean.type == null or elementBean.type == ''">
+			select count(1) as count from element e WHERE 1=1
+			<if test="elementBean.audit_status != -1"> and e.audit_status = #{elementBean.audit_status}</if>
+			<if test="elementBean.elem_name != null and elementBean.elem_name != ''"> and e.elem_name like
+				CONCAT('%','${elementBean.elem_name}','%' )   </if>
+			<if test="elementPower == '1' or elementPower==1">
+				and e.creator_id in
+				<foreach collection="userids" item="idList" index="index"
+					open="(" close=")" separator=",">
+					#{idList}
+		</foreach>
+			</if>
+			order by e.create_time;
+		</if>
+	-->
+	</select>
+	<delete id="deleteElementById" parameterType="beans.element.ElementBean"
+		flushCache="true">
+		delete from element
+		where elem_id =
+		#{elem_id}  
+    </delete>
+	<select id="getElementNameById" resultType="java.lang.String"
+		parameterType="beans.element.ElementBean">
+		select elem_name from element
+		where elem_id =
+		#{elem_id}
+	</select>
+	<select id="getClassifyNameById" resultType="java.lang.String"
+		parameterType="beans.element.ElementBean">
+		select type_name from `element_type`
+		where type_id =
+		#{id}
+	</select>
+	<select id="findLocation" resultType="java.lang.String"
+		parameterType="beans.element.ElementBean">
+		select elem_path from element
+		where elem_id =
+		#{elem_id}
+	</select>
+	<select id="queryCreatorById" resultType="java.lang.String"
+		parameterType="java.lang.String">
+		select realname from user
+		where user_id =
+		#{userId}
+	</select>
+	<select id="findWebLocation" resultType="java.lang.String"
+		parameterType="beans.element.ElementBean">
+		select thumbnailUrl from element
+		where elem_id =
+		#{elem_id}  
+    </select>
+	<select id="findFtpLocation" resultType="java.lang.String"
+		parameterType="beans.element.ElementBean">
+		select config_value from config
+		where config_key =
+		'ftpMappingUrl'
+	 
+    </select>
+
+	<update id="updateElementById" parameterType="beans.element.ElementBean"
+		flushCache="true">
+		update element
+		<set>
+			<if test="elem_name != null">
+				elem_name = #{elem_name},
+		</if>
+			<if test="elem_path != null">
+				elem_path = #{elem_path},
+		</if>
+			<if test="audit_status != null">
+				audit_status = #{audit_status},
+		</if>
+			<if test="update_time != null">
+				update_time = #{update_time},
+		</if>
+			<if test="description != null">
+				description = #{description},
+		</if>
+				<if test="elem_path != null and elem_path !='' ">
+				elem_path = #{elem_path},
+		</if>
+				<if test="elem_center != null">
+				elem_center =#{elem_center},		
+		</if>
+				<if test="resolution != null and resolution != ''">
+				resolution =#{resolution}
+		</if>
+		</set>
+		where elem_id = #{elem_id}
+	</update>
+	<update id="updateElementByNameAndMD5" parameterType="beans.element.ElementBean"
+		flushCache="true">
+		update element
+		<set>
+			<if test="update_time != null">
+				update_time = #{update_time},
+		</if>
+		</set>
+		where elem_name = #{elem_name} and MD5 = #{MD5}
+	</update>
+
+	<update id="editClassifyName" parameterType="beans.element.ElemtypeBean"
+		flushCache="true">
+		update element_type
+		<set>
+		<if test="type_name != null">
+				type_name = #{type_name},
+		</if>
+		<if test="creator_id != null">
+				creator_id = #{creator_id},
+		</if>
+		<if test="is_private != null">
+				is_private = #{is_private},
+		</if>
+		</set>
+		where type_id = #{type_id}
+	</update>
+
+	<update id="auditElementById" parameterType="beans.element.ElementBean"
+		flushCache="true">
+		update element
+		<set>
+			<if test="audit_status != null">
+				audit_status = #{audit_status},
+		</if>
+		</set>
+		where elem_id = #{elem_id}
+	</update>
+	<select id="queryFtpHttpMessage" resultType="beans.config.ConfigBean"
+		parameterType="beans.config.ConfigBean">
+		select * from config where
+		config_key = 'ftpip' or
+		config_key = 'ftpport' or
+		config_key = 'httpip' or
+		config_key = 'httpport'  or
+		config_key = 'outhttpip'  or
+		config_key = 'outftpip' or 
+		config_key = 'uploadport' or
+		config_key = 'downloadport' order by config_key
+	 </select>
+	 <select id="sameRecordTest" resultType="beans.element.ElementBean"  
+	        parameterType="java.lang.String">  
+	        select * from element where  elem_path = #{path}
+	 </select> 
+	 <select id="queryElementById" resultType="beans.element.ElementBean">
+	 	select * from element where elem_id = #{elem_id}
+	 </select>
+     <select id="classifySameNameTest" resultType="beans.element.ElemtypeBean"  
+        parameterType="java.lang.String">  
+        select * from element_type where  type_name = #{typeName}
+     </select>      
+     <insert id="saveHtml" parameterType="beans.element.ElementBean">  
+        insert into element(elem_id,elem_name,elem_size,elem_path,type,resolution,time_length,thumbnailUrl,audit_status,MD5,description,creator_id,create_time,update_time,deleted) values(null,#{elem_name},#{elem_size},#{elem_path},
+        #{type},#{resolution},#{time_length},#{thumbnailUrl},#{audit_status},#{MD5},#{description},#{creator_id},#{create_time},#{update_time},#{deleted})   
+  	 	<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="elem_id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+    </insert>  
+      <insert id="saveStream" parameterType="beans.element.ElementBean">  
+        insert into element(elem_id,elem_name,elem_size,elem_path,type,resolution,time_length,thumbnailUrl,audit_status,MD5,description,creator_id,create_time,update_time,deleted) values(null,#{elem_name},#{elem_size},#{elem_path},
+        #{type},#{resolution},#{time_length},#{thumbnailUrl},#{audit_status},#{MD5},#{description},#{creator_id},#{create_time},#{update_time},#{deleted})   
+   		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="elem_id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+    </insert>     
+    <select id="findElementbeanid" resultType="java.lang.Integer"  
+        parameterType="beans.element.ElementBean">  
+        select elem_id from element where 1=1 
+        <if test="elem_name != null and elem_name != ''"> and elem_name=#{elem_name}  </if>      
+    </select> 
+    <insert id="insertText" parameterType="beans.element.ElementBean">  
+        insert into element(elem_id,elem_name,elem_size,elem_path,type,resolution,time_length,thumbnailUrl,audit_status,MD5,description,creator_id,create_time,update_time,deleted,elem_center) values(null,#{elem_name},#{elem_size},#{elem_path},
+        #{type},#{resolution},#{time_length},#{thumbnailUrl},#{audit_status},#{MD5},#{description},#{creator_id},#{create_time},#{update_time},#{deleted},#{elem_center})   
+ 		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="elem_id">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<insert id="insertClassifyType">
+		insert into
+		element_classify(type_id,element_id)values(#{type},#{elemId})
+	 </insert>
+     <select id="findEleByMd5AndCreatorID" parameterType="beans.element.ElementBean" resultType="beans.element.ElementBean" >  
+       SELECT * FROM element WHERE 1=1  
+       <if test="elem_name != null and elem_name != ''"> and elem_name=#{elem_name}  </if> 
+        <if test="MD5 != null and MD5 != ''"> and MD5=#{MD5}  </if>      
+        <if test="creator_id != null and creator_id != ''"> and creator_id=#{creator_id}  </if>   
+	</select> 	
+	 <select id="queryCount"  resultType="java.lang.Integer" >  
+			SELECT COUNT(1) FROM element_classify WHERE type_id = #{typeid} AND element_id = #{elemId}
+	</select> 		
+	
+	<select id="FindElementIdsWithElementPath" resultType="beans.element.ElementBean"  >
+	   SELECT e.`elem_id`,e.`elem_name`,e.`elem_path`,e.`elem_size`,e.`type`,e.`MD5`  
+	   FROM element e 
+	   WHERE e.`elem_id` IN
+	   <foreach collection="elemId" item="elemId" index="index" open="(" close=")" separator=",">
+	          #{elemId}
+	   </foreach>
+	</select>
+	<select id="queryClassifyByTypeID" resultType="java.lang.Integer">
+		SELECT parentId FROM `element_type` WHERE type_id = #{typeValue}
+	</select>
+	<select id="selectElementByMD5s" resultType="beans.element.ElementBean" >
+		SELECT e.`MD5`,e.`elem_id`,e.`elem_name`,e.`elem_path`,e.`elem_size`,e.`type` FROM element e 
+		WHERE e.`MD5` IN
+	   <foreach collection="list" item="elemmd5s" index="index" open="(" close=")" separator=",">
+	          #{elemmd5s}
+	   </foreach>
+	   GROUP BY  e.`MD5`
+	</select>
+	
+	<select id="queryCountElementByMd5" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM `element` WHERE MD5 = #{MD5}
+	</select>
+	
+</mapper>    

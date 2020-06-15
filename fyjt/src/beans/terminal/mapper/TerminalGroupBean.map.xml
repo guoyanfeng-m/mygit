@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.terminal.TerminalGroupDao">
+	<insert id="insertTerminalGroup" parameterType="beans.terminal.TerminalGroupBean">
+		insert into
+		terminalgroup(t_id,parentid,groupName,Description,CreatorID,UpdateTime,IsDeleted,create_time)
+		values(#{t_id},#{parentId},#{groupName},#{Description},#{CreatorID},#{UpdateTime},#{IsDeleted},#{create_time});
+		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="t_id">
+			SELECT LAST_INSERT_ID() AS t_id  
+        </selectKey>
+	</insert>
+
+	<delete id="deleteTerminalGroupById" parameterType="beans.terminal.TerminalGroupBean"
+		flushCache="true">
+		delete from terminalgroup
+		where t_id = #{t_id};
+       </delete>
+
+	<update id="updateTerminalGroupByTerminalId" parameterType="beans.terminal.TerminalGroupBean"
+		flushCache="true">
+		update terminalgroup
+		<set>
+			<if test="groupName != null">
+				groupName = #{groupName},
+		</if>
+			<if test="Description != null">
+				Description = #{Description},
+		</if>
+			UpdateTime = null
+		</set>
+		where t_id = #{t_id}
+	</update>
+
+	<select id="queryTerminalGroupName" resultType="beans.terminal.TerminalGroupBean"
+		parameterType="beans.terminal.TerminalGroupBean" flushCache="true">
+		select
+		*
+		from terminalgroup
+		where 1 = 1
+		<if test="t_id != null and t_id != ''"> and t_id=#{t_id}  </if>
+		;
+	</select>
+	<select id="queryTerminalGroupParentById" resultType="java.lang.String"
+		parameterType="java.lang.String">
+		select parentid from terminalgroup where t_id=#{t_id}
+	</select>
+
+
+	<select id="checkTerminalGroupName" resultType="beans.terminal.TerminalGroupBean"
+		parameterType="beans.terminal.TerminalGroupBean" flushCache="true">
+		select
+		*
+		from terminalgroup
+		where 1 = 1
+		<if test="t_id != null and t_id != ''"> and t_id!=#{t_id}  </if>
+		<if test="groupName != null and groupName != ''"> and groupName=#{groupName}  </if>
+		;
+	</select>
+
+
+	<!--wangyulin 2014/12/25-->
+	<select id="queryTerminalGroupByParentID" resultType="String"
+		parameterType="int" flushCache="true">
+		SELECT t_id FROM terminalgroup WHERE
+		ParentID=#{pid} and IsDeleted=0
+		</select>
+
+
+
+	<insert id="insertTerminalTerminalGroup" parameterType="beans.terminal.TerminalTerminalGroupBean">
+		insert into role_terminalgroup(terminalId,groupId)
+		values(#{terminalId},#{groupId})   
+    </insert>
+    
+       <!-- 通过终端组id查询下级终端组 -->
+    <select id="queryGroupId" parameterType="java.lang.Integer" resultType="beans.terminal.TerminalGroupTypeBean">
+    	SELECT 
+			tg.`t_id` 		typeId,	
+			tg.`GroupName` 	typeName
+		FROM 
+			`terminalgroup` tg 
+		WHERE 
+			tg.`ParentID` = #{groupId}
+    </select>
+    
+    <!-- 通过终端组id查询下级终端 -->
+    <select id="queryTerminalId" parameterType="java.lang.Integer" resultType="beans.terminal.TerminalGroupTypeBean">
+    	SELECT 
+    		t.`terminal_id`		typeId,
+    		t.`terminal_name`	typeName
+    	FROM 
+    		`terminal` t 
+    	LEFT JOIN 
+    		`terminal_terminalgroup` tg 
+    	ON 
+    		t.`terminal_id` = tg.`TerminalId` 
+    	WHERE 
+    		tg.`GroupID` = #{groupId}
+    </select>
+    <!-- 获取终端组id节点下的所有子节点id-->
+    <select id="queryTerminalGroupId" parameterType="java.lang.String" resultType="java.lang.String">
+    	SELECT 
+    		t_id 
+    	FROM 
+    		terminalgroup
+    	WHERE 
+    		FIND_IN_SET( t_id, getChildren(#{groupId}));
+    </select>
+    <!-- 获取终端组id节点下的所有子节点id-->
+    <select id="queryTerminalByGroupId" parameterType="java.util.List" resultType="java.lang.String">
+    	SELECT 
+    		TerminalID 
+    	FROM 
+    		`terminal_terminalgroup` 
+    	WHERE GroupID IN 
+    		<foreach item="groupId" index="index" collection="gruopIds"
+     			 open="(" separator="," close=")">
+        		#{groupId}
+  			</foreach>
+    </select>
+    
+    <!-- 通过开始拖拽的终端组id来修改其父级id 修改值为 拖拽后目标节点的终端组id (终端组移动)
+    <update id="updateTerminalGroupIdParent">
+    	UPDATE `terminalgroup` SET ParentID = #{targetId} WHERE t_id = #{sourceId}
+    </update>-->
+</mapper>    
